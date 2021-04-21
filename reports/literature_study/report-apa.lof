@@ -1,0 +1,83 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\babel@toc {english}{}
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Photographs of 4 Vesta and 67P/Churyumov-Gerasimenko taken by the Dawn and Rosetta spacecraft, respectively (not to scale).\relax }}{3}{figure.caption.11}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Cumulative population, potential impact energy and impat interval for Near Earth Asteroids.\relax }}{6}{figure.caption.14}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Population of Near Earth Asteroids and population of those currently detected.\relax }}{7}{figure.caption.15}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Distribution of orbital elements of known NEO's (as of 2002) and the largest 10.000 main-belt asteroids. (\cite {originandevolution})\relax }}{8}{figure.caption.17}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Expected (black line) and known as of 2001 (grey histogram) distribution of orbital elements of all NEA's with H<18. (\cite {debiased})\relax }}{9}{figure.caption.18}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.6}{\ignorespaces Diagram showing the characteristic orbits of the NEA groups.\relax }}{10}{figure.caption.20}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.7}{\ignorespaces Expected (black line) and known as of 2001 (grey histogram) distribution of orbital elements of all Amor asteroids with H<18. (\cite {debiased})\relax }}{11}{figure.caption.21}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.8}{\ignorespaces Expected (black line) and known as of 2001 (grey histogram) distribution of orbital elements of all Apollo asteroids with H<18.(\cite {debiased})\relax }}{12}{figure.caption.22}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.9}{\ignorespaces Expected (black line) and known as of 2001 (grey histogram) distribution of orbital elements of all Aten asteroids with H<18. (\cite {debiased})\relax }}{13}{figure.caption.23}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {2.10}{\ignorespaces Expected (black line) and known as of 2020 (black histogram) distribution of orbital elements of all Atira asteroids with H<18.(\cite {debiased}). The black histogram was not presented in the original paper, but was added by the author of this report. This was done because there were zero known Atira asteroids in 2001. Note that there is still a lot of uncertainty in this population.\relax }}{14}{figure.caption.24}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.1}{\ignorespaces True color image of dwarf planet Pluto taken by the New Horizons space probe in 2015. \relax }}{15}{figure.caption.25}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.2}{\ignorespaces CCD sensor from a SONY Alpha commercial camera.\relax }}{16}{figure.caption.26}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Overview of common mirror and lens setups. (\cite {SMAD})\relax }}{17}{figure.caption.27}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Illustration of coordinate frames used in the camera attitude determination\relax }}{18}{figure.caption.28}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Description of elements of an optical system. The presented figure is for a refractive system, although mathematically a reflective system functions similarly. (\cite {SMAD})\relax }}{19}{figure.caption.29}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.6}{\ignorespaces An Airy diffraction disk created by shining a laser on a 90-micrometer hole.\relax }}{21}{figure.caption.30}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Simulated intensity of airy disk in 2D in dimensionless units $u$\relax }}{22}{figure.caption.32}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Artist rendition of the NEOSSat satellite, showing the apeture of the 0.15m Maksutov-Cassegrain telescope. (Image Courtesy: Canadian Space Agency)\relax }}{26}{figure.caption.34}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Overview of the process of image processing (images from \cite {ATLASBlog}). Note that these images were not obtained using the mentioned methods, but merely serve as illustration.\relax }}{27}{figure.caption.35}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Demonstration of the image subtraction process from a series of stacked images. The path of the transient is shown in red (\cite {processingclassic}).\relax }}{28}{figure.caption.36}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Some images from ATLAS data. The first two rows show actual detections of asteroids, whereas the latter two rows show visual artifacts. Note how the white streaks in the bottom images might be mistakes for astroid tracks in a more simple algorithm (\cite {AtlasDL}.)\relax }}{31}{figure.caption.37}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Schematic of the network used by \cite {processingDLtwo} for classification into seven classes of observations.\relax }}{31}{figure.caption.38}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Comparison of real and simulated image sequences from \cite {processingDLtwo}.\relax }}{31}{figure.caption.39}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.6}{\ignorespaces The system trained by \cite {autoencoder} and its results.\relax }}{32}{figure.caption.40}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Actual orbit and orbit as determined by Gauss' method for a short arc\relax }}{35}{figure.caption.41}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Sketch of the construction of the admissible region (\cite {classicmodernorbits}).\relax }}{36}{figure.caption.42}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.3}{\ignorespaces An example of an admissible region, for asteroid $2003 BH_{84}$ using exclusively data from the day of first observation. The vertical axis is $\dot {r}$[AU/day], the horizontal axis is $f(r) = 1-e^{-r^2/(2s^2)}$ where $s$ is a normalization term. The real position of the asteroid is marked near the top left with a $\oplus $. (\cite {classicmodernorbits})\relax }}{37}{figure.caption.43}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Comparison of a biological neuron with an artificial neuron. The Neuron takes inputs, combines those, and forwards them to produce a set of outputs. Note that this is where the analogy ends: biological neurons behave very differently to ANN's. CC BY-SA 4.0 Prof. Vu-Quoc.\relax }}{39}{figure.caption.44}%
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Structure of a feedforward neural network. CC BY-SA 3.0 Glosser.ca\relax }}{39}{figure.caption.45}%
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Gannt chart for the thesis work. Shown in red is literature research work, blue is theoretical research work and pink the programming work. Milestones are indicated as red diamonds. Each rectangle represents a week.\relax }}{47}{figure.caption.47}%
+\contentsfinish 

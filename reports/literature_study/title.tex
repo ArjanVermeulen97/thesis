@@ -1,0 +1,77 @@
+\begin{titlepage}
+
+
+\begin{center}
+
+%% Insert the TU Delft logo at the bottom of the page.
+
+%% Print the title in cyan.
+{\makeatletter
+\largetitlestyle\fontsize{48}{48}\selectfont\@title
+%\largetitlestyle\color{tudelft-cyan}\Huge\@title
+\makeatother}
+
+%% Print the optional subtitle in black.
+{\makeatletter
+\ifx\@subtitle\undefined\else
+    \bigskip
+   {\tudsffamily\fontsize{22}{32}\selectfont\@subtitle}    
+    %\titlefont\titleshape\LARGE\@subtitle
+\fi
+\makeatother}
+
+\bigskip
+\bigskip
+
+by
+%door
+
+\bigskip
+\bigskip
+
+%% Print the name of the author.
+{\makeatletter
+%\largetitlefont\Large\bfseries\@author
+\largetitlestyle\fontsize{26}{26}\selectfont\@author
+\makeatother}
+
+\bigskip
+\bigskip
+
+In partial fulfillment of the requirements
+
+to obtain the degree of Master of Science
+%ter verkrijging van de graad van Master of Science
+
+at the Delft University of Technology,
+%aan de Technische Universiteit Delft,
+%in het openbaar de verdedigen op dinsdag 1 januari om 10:00 uur.
+
+\vfill
+
+\begin{tabular}{lll}
+    Student number: & 4382889 \\
+    Supervisor: & Dr.\ J.\ Guo, & TU Delft \\
+     & Dr.\ M. J.\ Heiligers, & TU Delft
+\end{tabular}
+%% Only include the following lines if confidentiality is applicable.
+
+\bigskip
+\bigskip
+\emph{Cover image: P. C. Budassi "Asteroid belt landscape", 9 August 2020, CC BY-SA 4.0. Retrieved from: \url{https://commons.wikimedia.org/wiki/File:Asteroid_belt_landscape.png}}
+
+%\\[1cm]
+
+%\centering{\includegraphics{cover/logo_black}}
+
+
+\end{center}
+
+\begin{tikzpicture}[remember picture, overlay]
+    \node at (current page.south)[anchor=south,inner sep=0pt]{
+        \includegraphics{cover/logo_black}
+    };
+\end{tikzpicture}
+
+\end{titlepage}
+
