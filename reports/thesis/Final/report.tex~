@@ -1,0 +1,50 @@
+\documentclass{tudelft-report_try}
+
+% 1)Translates MATLAB code:
+\usepackage[framed,numbered,autolinebreaks,useliterate]{mcode}
+% enclose the MATLAB code by using begin/end{lstlisting}
+
+% 2)Multiple figures on one page
+\usepackage{float}
+\usepackage[caption = false]{subfig}
+
+% 3)
+
+
+\begin{document}
+
+%% Use Roman numerals for the page numbers of the title pages and table of
+%% contents.
+\frontmatter
+
+\title[Unceirtainty quantification in wind turbine load extrapolation]{Wind Turbine Load Extrapolation}
+\author{S.F.\ van Eijk}
+\affiliation{Faculty Aerospace Section Wind Energy}
+
+\coverimage{cover.jpg}
+\makecover[backboxheight = 2.64in]
+
+
+%% Include an optional title page.
+\input{title}
+
+\input{preface}
+
+\tableofcontents
+
+%% Use Arabic numerals for the page numbers of the chapters.
+\mainmatter
+
+\input{chapter-1}
+\input{chapter-2}
+
+
+%% Use letters for the chapter numbers of the appendices.
+\appendix
+
+\input{appendix-a}
+
+\bibliography{report}
+
+\end{document}
+

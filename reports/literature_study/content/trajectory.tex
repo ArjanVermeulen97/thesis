@@ -181,8 +181,8 @@ The functions $f$ and $h$ allow for these transformations to be made. However, t
 \end{equation}
 Thus, after substitution of \autoref{eq:extendedstate} and \autoref{eq:extendedobservation} into the standard Kalman filter, the remaining state and observation matrices can be approximated by the following Jacobians:
 \begin{align}
-    \mathbf{F}_k &\approx \left \frac{\partial f}{\partial \vec{x}} \right|_{\hat{x}_{k-1|k-1}, \vec{u}_k} \\
-    \mathbf{H}_k &\approx \left \frac{\partial h}{\partial \vec{x}} \right|_{\hat{x}_{k|k-1}}
+    \mathbf{F}_k &\approx \left. \frac{\partial f}{\partial \vec{x}} \right|_{\hat{x}_{k-1|k-1}, \vec{u}_k} \\
+    \mathbf{H}_k &\approx \left. \frac{\partial h}{\partial \vec{x}} \right|_{\hat{x}_{k|k-1}}
 \end{align}
 
 Kalman filters are a promising technique for performing the further research. For example, \cite{trajectorythesis}, shows very good results in approximating trajectories using an Extended Kalman Filter, but does note that the filter has problems when the trajectory deviates too much from the used physics model. Therefore, finding a good linearized representation is essential.
