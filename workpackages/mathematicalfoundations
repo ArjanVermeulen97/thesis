@@ -1,5 +1,6 @@
 \documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
+\usepackage{amsmath}
 
 %opening
 \title{WP 1.1 Mathematical Foundations}
@@ -11,8 +12,26 @@
 
 \section{Contents}
 
+This works package details the mathematical foundations for the thesis work. This will be split up into several sections:
+\begin{itemize}
+\item Coordinate systems and transformations
+\item Three-body orbital mechanics (summary)
+\item Definitions for the numerical methods
+\item Definitions for the Kalman filter methods
+\item Definitions for the neural networks
+\end{itemize}
 
+\section{Coordinate systems and transformations}
+This section will detail the necessary coordinate systems and corresponding transformations.\\
 
-\section{}
+Often, an orbit is expressed in terms of the Keplerian orbital elements:
+\begin{itemize}
+\item Eccentricity $e$
+\item Semi-major axis $a$
+\item Inclination $i$
+\item Right Ascension of the Ascending Node $\Omega$
+\item Argument of Periapsis $\omega$
+\item True anomaly at Epoch $\theta$
+\end{itemize}
 
 \end{document}
