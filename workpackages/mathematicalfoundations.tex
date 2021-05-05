@@ -59,7 +59,53 @@ TRANSFORMATIONS
 \section{Alternative coordinate systems}
 A problem that will be encountered later in the process is the ``conversion'' from a preliminary orbit determination to an impact threat assessment. For this, it might be necessary to tell the system where Earth is. (alternatively, other metrics such as MOID could be looked at, leading to a system where the target is analysed in more detail from Earth). Instead of giving the system a measure of Earth's location, it might be convenient to define a coordinate system in which both Earth and the Sun (as it is the main gravitational attractor) are fixed. We shall define the Sun-Earth ecliptic reference frame as the right-handed frame with the origin at the center of the Sun, the Z+ axis pointing North perpendicular to the ecliptic, the X+ axis pointing through the center of Earth, and the Y+ axis completing the right-handed system. \\
 
-The advantage of this system is obvious: if we assume Earth's orbit to be circular, the position of Earth will always be $[1AU, 0, 0]^T$, and therefore the problem simplifies to determining the hazard to that point. However, as the reference frame is no longer non-rotating, the dynamics of the motion vastly complicate.
+The advantage of this system is obvious: if we assume Earth's orbit to be circular, the position of Earth will always be $[1, 0, 0]^T~AU$, and therefore the problem simplifies to determining the hazard to that point. However, as the reference frame is no longer non-rotating, the dynamics of the motion vastly complicate.
 
+\section{Transformations}
+
+Most coordinate transformations that are required are quite straightfoward. The transformation between heliocentric frame $h$, geocentric frame $e$ and spacecraft centered frame $s$ can be performed through vector addition. Example for vector $\vec{r}$:
+\begin{equation}
+ \vec{r}^s = \vec{r}^h - \vec{r_s}^h
+\end{equation}
+With $\vec{r_s}^h$ denoting the position of the spacecraft in the heliocentric frame. In words: the position of the target in the spacecraft-centered frame is the difference of the position of the target and the position of the spacecraft in any of the other reference frames. \\
+
+Thus, when the position of Sun, Earth and spacecraft are known in each of the respective frames, the coordinate transformation is straightforward. The other coordinate frames require a more elaborate transformation to achieve. The Sun-Earth ecliptic frame $r$ (for rotating) can be achieved by a rotation of the heliocentric frame around the Z-axis. If we define the true anomaly of the Earth $\theta_e$ as 0 at the vernal equinox, we find that:
+
+\begin{equation}
+ \vec{r}^r = \mathbf{R_3}(\theta_e) \vec{r}^h
+\end{equation}
+
+With $\mathbf{R_3}$ denoting a rotation around the third axis. Similarly, the camera coordinate frame can be achieved by a rotation matrix $\mathbf{C}$ which can be given in terms of twist angle $\phi$, right ascension $\alpha$ and declination $\delta$:
+\begin{equation}
+ \mathbf{C} = \mathbf{R_3}(\phi)\mathbf{R_1}(90^\circ - \delta)\mathbf{R_3}(\alpha + 90^\circ)
+\end{equation}
+or:
+\begin{equation}
+ \mathbf{R_3}(\phi + 90^\circ)\mathbf{R_2}(90^\circ - \delta)\mathbf{R_3}(\alpha)
+\end{equation}
+Then:
+\begin{equation}
+ \vec{r}^c = \mathbf{C}(\alpha, \delta, \phi)\vec{r}^s
+\end{equation}
+The rotation matrices are given by:
+\begin{align}
+ \mathbf{R_1}(\theta) &= \begin{bmatrix}1 & 0 & 0 \\ 0 & \cos \theta & -\sin \theta \\ 0 & \sin \theta & \cos \theta \end{bmatrix} \\
+ \mathbf{R_2}(\theta) &= \begin{bmatrix} \cos \theta & 0 & - \sin \theta \\ 0 & 1 & 0 \\ - \sin \theta & 0 & \cos \theta \end{bmatrix} \\
+ \mathbf{R_3}(\theta) &= \begin{bmatrix} \cos \theta & -\sin \theta & 0 \\ \sin \theta & \cos \theta & 0 \\ 0 & 0 & 1 \end{bmatrix}
+\end{align}
+
+
+
+
+
+
+
+\section{Two- and Three-body Orbital Mechanics}
+
+\section{Numerical Methods}
+
+\section{Kalman Filters}
+
+\section{Artificial Neural Networks}
 
 \end{document}

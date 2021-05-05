@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2021.4.21)  4 MAY 2021 13:11
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2021.4.21)  4 MAY 2021 16:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -308,7 +308,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 27--28
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-<cameracoordinates.png, id=36, 595.22375pt x 286.06876pt>
+<cameracoordinates.png, id=60, 595.22375pt x 286.06876pt>
 File: cameracoordinates.png Graphic file (type png)
 <use cameracoordinates.png>
 Package pdftex.def Info: cameracoordinates.png  used on input line 52.
@@ -318,43 +318,40 @@ Underfull \hbox (badness 10000) in paragraph at lines 60--61
 
  []
 
-[2 <./cameracoordinates.png (PNG copy)>] [3] (./mathematicalfoundations.aux)
+[2 <./cameracoordinates.png (PNG copy)>]
+Underfull \hbox (badness 10000) in paragraph at lines 69--71
 
-Package rerunfilecheck Warning: File `mathematicalfoundations.out' has changed.
+ []
 
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `mathematicalfoundations.out':
-(rerunfilecheck)             Before: E7DBCEEAA38C3DF2C3E47026D632427C;308
-(rerunfilecheck)             After:  D190C9AE91952A0E2AA38D65BEABE54E;415.
+[3] [4] (./mathematicalfoundations.aux)
+Package rerunfilecheck Info: File `mathematicalfoundations.out' has not changed
+.
+(rerunfilecheck)             Checksum: 37A5CEDBFED47D4A01C4CE69BCE3BDB2;701.
  ) 
 Here is how much of TeX's memory you used:
- 5766 strings out of 479383
- 86621 string characters out of 5875830
- 394268 words of memory out of 5000000
- 22776 multiletter control sequences out of 15000+600000
- 409186 words of font info for 47 fonts, out of 8000000 for 9000
+ 5790 strings out of 479383
+ 86890 string characters out of 5875830
+ 396271 words of memory out of 5000000
+ 22785 multiletter control sequences out of 15000+600000
+ 410113 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 66i,6n,72p,1166b,322s stack positions out of 5000i,500n,10000p,200000b,80000s
-pdfTeX warning (dest): name{section.5} has been referenced but does not exist
-, replaced by a fixed one
-
-pdfTeX warning (dest): name{section.4} has been referenced but does not exist, 
-replaced by a fixed one
-
-{/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fonts
-/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
-10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/sh
-are/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-dist/
-fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-dist/fonts/type1/pu
-blic/cm-super/sfrm1000.pfb>
-Output written on mathematicalfoundations.pdf (3 pages, 103056 bytes).
+ 66i,14n,72p,1166b,326s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmbx7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></us
+r/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmr17.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
+></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-dist/fonts
+/type1/public/cm-super/sfrm1000.pfb>
+Output written on mathematicalfoundations.pdf (4 pages, 151239 bytes).
 PDF statistics:
- 84 PDF objects out of 1000 (max. 8388607)
- 69 compressed objects within 1 object stream
- 13 named destinations out of 1000 (max. 500000)
- 46 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 140 PDF objects out of 1000 (max. 8388607)
+ 118 compressed objects within 2 object streams
+ 25 named destinations out of 1000 (max. 500000)
+ 94 words of extra memory for PDF output out of 10000 (max. 10000000)
 
