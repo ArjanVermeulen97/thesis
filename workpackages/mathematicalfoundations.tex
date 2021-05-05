@@ -102,6 +102,80 @@ The rotation matrices are given by:
 
 \section{Two- and Three-body Orbital Mechanics}
 
+The equations of motion need to be known in order to accurately model the asteroids and to e.g. apply the kalman filter and parts of the numerical methods. the equations of motion for two-body problem are simple:
+
+\begin{equation}
+ r(\theta) = \frac{a(1-e^2)}{1+e \cos (\theta)}
+\end{equation}
+
+As the motion is in a single plane, it is only necessary to know the distance to the barycenter (which can be assumed to coincide with the Sun), and the true anomaly $\theta$. The orbital elements $\Omega$, $i$ and $\omega$ can be seen as Euler angles rotating the coordinate system. If we define the \textit{orbital reference frame} $o$ with X+ towards the periapsis, Z+ perpendicular to the plane of the orbit and Y+ completing the coordinate system right-handed, we can define the following transformations:
+
+\begin{equation}
+ \begin{bmatrix}
+  x_o \\ y_o \\ z_o
+ \end{bmatrix}
+ =
+ \begin{bmatrix}
+  \cos \omega & \sin \omega & 0 \\
+  - \sin \omega & \cos \omega & 0 \\
+  0 & 0 & 1
+ \end{bmatrix}
+ \begin{bmatrix}
+  1 & 0 & 0 \\
+  0 & \cos i & \sin i \\
+  0 & -\sin i & \cos i
+ \end{bmatrix}
+ \begin{bmatrix}
+  \cos \Omega & \sin \Omega & 0 \\
+  - \sin \Omega & \cos \Omega & 0 \\
+  0 & 0 & 1
+ \end{bmatrix}
+ \begin{bmatrix}
+  x_h \\ y_h \\ z_h
+ \end{bmatrix}
+\end{equation}
+
+Finding the inverse is straightforward: firstly, one should note all matrices are diagonal and thus easily invertible. However, perhaps more intuitively, the rotation sequence can be ``reversed'' by simply reversing the order of the matrices and inverting the sign of the angles (essentially ``rotating'' the system ``back'' into its original orientation):
+
+\begin{equation}
+ \begin{bmatrix}
+  x_h \\ y_h \\ z_h
+ \end{bmatrix}
+ =
+ \begin{bmatrix}
+  \cos -\Omega & \sin -\Omega & 0 \\
+  -\sin -\Omega & \cos -\Omega & 0 \\
+  0 & 0 & 1
+ \end{bmatrix}
+ \begin{bmatrix}
+  1 & 0 & 0 \\
+  0 & \cos -i & \sin -i \\
+  0 & -\sin -i & \cos -i
+ \end{bmatrix}
+ \begin{bmatrix}
+  \cos -\omega & \sin -\omega & 0 \\
+  - \sin -\omega & \cos -\omega & 0 \\
+  0 & 0 & 1
+ \end{bmatrix}
+ \begin{bmatrix}
+  x_o \\ y_o \\ z_o
+ \end{bmatrix}
+\end{equation}
+
+Lastly, conversion from $r, \theta$ to $x_o, y_o, z_o$ is simple (note that $z_o$ is always zero in the two-body solution as the orbit is planar):
+\begin{equation}
+ \begin{bmatrix}
+  x_o \\ y_o \\ z_o
+ \end{bmatrix}
+ =
+ \begin{bmatrix}
+  \cos \theta \\ \sin \theta \\ 0
+ \end{bmatrix}
+ r
+\end{equation}
+
+
+
 \section{Numerical Methods}
 
 \section{Kalman Filters}
