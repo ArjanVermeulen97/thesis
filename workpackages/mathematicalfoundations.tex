@@ -178,6 +178,22 @@ Lastly, conversion from $r, \theta$ to $x_o, y_o, z_o$ is simple (note that $z_o
 
 \section{Numerical Methods}
 
+As mentioned in the literature study, the numerical methods based on the method of very short arcs require knowing the parameter space of the targets. As determined by the original authors, there are some initial requirements:
+\begin{itemize}
+ \item If the object is within the SoI of Earth, it can't be orbitting Earth.
+ \item The object should orbit the sun
+ \item The object should have a reasonable magnitude
+\end{itemize}
+These can be further defined when examining whether an asteroid is dangerous:
+\begin{itemize}
+ \item The object should be a NEA, i.e. $q \leq 1.017\mathrm{AU}$ and $Q \geq 0.983\mathrm{AU}$
+ \item The object should be large enough to cause damage, i.e. $D\geq30\mathrm{m}$, corresponding to $H \leq 25$
+\end{itemize}
+
+This leaves the question of how to efficiently estimate the parameter space. Essentially, we can accomplish this by getting an estimate of $\vec{r}$ and $\dot{\vec{r}}$. Imagine extending an imaginary line from the camera in the direction of the target during a measurement. It is known the target is somewhere along this line. Thus, this constrains the possibilities for $\vec{r}$ to a small subspace. When taking a second measurement, we can fit a straight line to the trajectory (which should be accurate for a short timestep; for higher timesteps the method of short arcs is unneccessary). This allows computation of $\dot{\vec{r}}$. With both of these vectors known, the orbit is essentially determined. If more than 2 measurements are available, the straight line can be fit more accurately using e.g. a least-squares estimation.\\
+
+The process of determining the admissible values of $\vec{r}$ is as follows:
+
 \section{Kalman Filters}
 
 \section{Artificial Neural Networks}
