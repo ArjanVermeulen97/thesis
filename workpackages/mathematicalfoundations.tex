@@ -188,11 +188,19 @@ These can be further defined when examining whether an asteroid is dangerous:
 \begin{itemize}
  \item The object should be a NEA, i.e. $q \leq 1.017\mathrm{AU}$ and $Q \geq 0.983\mathrm{AU}$
  \item The object should be large enough to cause damage, i.e. $D\geq30\mathrm{m}$, corresponding to $H \leq 25$
+ \item The object should be small enough that there's a chance it hasn't been found, i.e. $H \geq 15$
 \end{itemize}
 
 This leaves the question of how to efficiently estimate the parameter space. Essentially, we can accomplish this by getting an estimate of $\vec{r}$ and $\dot{\vec{r}}$. Imagine extending an imaginary line from the camera in the direction of the target during a measurement. It is known the target is somewhere along this line. Thus, this constrains the possibilities for $\vec{r}$ to a small subspace. When taking a second measurement, we can fit a straight line to the trajectory (which should be accurate for a short timestep; for higher timesteps the method of short arcs is unneccessary). This allows computation of $\dot{\vec{r}}$. With both of these vectors known, the orbit is essentially determined. If more than 2 measurements are available, the straight line can be fit more accurately using e.g. a least-squares estimation.\\
 
 The process of determining the admissible values of $\vec{r}$ is as follows:
+\begin{enumerate}
+ \item Use the apparent magnitude of the object to determine the range of $||r||$
+ \item Perform coordinate transforms to get $\vec{r}$ in the heliocentric reference frame
+ \item Repeat step 1 for the second measurement, using the constraints on orbital energy to determine $\dot{\vec{r}}$
+ \item Calculate risk to Earth using monte-carlo methods.
+\end{enumerate}
+
 
 \section{Kalman Filters}
 
