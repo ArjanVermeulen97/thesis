@@ -102,7 +102,28 @@ The rotation matrices are given by:
 
 \section{Two- and Three-body Orbital Mechanics}
 
-The equations of motion need to be known in order to accurately model the asteroids and to e.g. apply the kalman filter and parts of the numerical methods. the equations of motion for two-body problem are simple:
+The equations of motion need to be known in order to accurately model the asteroids and to e.g. apply the kalman filter and parts of the numerical methods. The motion of the spacecraft around the Sun is governed soleley by gravity. By assuming the Sun to be at rest (a fair assumption, as $m_{S/C} << m_\odot$), only gravitational force is to be considered:
+
+\begin{equation}
+ \frac{d^2 \vec{r}}{dt^2} = \frac{\mu_\odot}{||r||^3}\vec{r}
+\end{equation}
+
+Consequently, velocity and position are obtained by integration of the acceleration. Or, in equations, the position of the spacecraft at time $t=T$ can be determined from its position and velocity at time $t=0$:
+\begin{align}
+\vec{r}(t=T) &= \vec{r}(t=0) + \int_0^T \frac{d \vec{r}}{dt} dt \\
+\frac{d \vec{r}}{dt}(t=T) &= \frac{d \vec{r}}{dt}(t=0) + \int_0^T \frac{d^2 \vec{r}}{dt^2} dt \\
+\frac{d^2 \vec{r}}{dt^2}(t=T) &= \frac{\mu_\odot}{||r(t=T)||^3}\vec{r}(t=T)
+\end{align}
+
+If a discrete-time solution is required, the following result is obtained (with velocity $v$ and acceleration $a$:
+\begin{align}
+ \vec{r}(T+\Delta t) &= \vec{r}(T) + \vec{v}(T)\Delta t \\
+ \vec{v}(T+\Delta t) &= \vec{v}(T) + \vec{a}(T)\Delta t \\
+ \vec{a}(T+\Delta t) &= \frac{\mu_\odot}{||r(T+\Delta t)||^3}\vec{r}(T + \Delta t)
+\end{align}
+But alternate integration schemes are of course possible (and might be necessary for stability over longer timescales).\\
+
+The resulting trajectory for the two-body problem is simple:
 
 \begin{equation}
  r(\theta) = \frac{a(1-e^2)}{1+e \cos (\theta)}
@@ -213,11 +234,22 @@ With absolute magnitude $H$ and apparent magnitude $m$, we can find for body $B$
  H = m - 5 \log _{10} \left(d_{BS}d_{BO}\right) + 2.5\log _{10} \phi(\alpha)
 \end{equation}
 
+Initially, I think it's best to just do this iteratively. There will be a large range of initial $\vec{r}$ values. However, the second step will have a much smaller solution space because of the other restrictions. Then, using e.g. scikit-learn.model\_selection.RandomSearchCV (grid search is too slow) the worst-case approach near Earth can be determined. Care should be taken to allow the system to run feasibly on a limited processor inside a spacecraft.\\
 
-
+IMPORTANT: As the spacecraft is also orbiting the sun, all calculations should be performed in the heliocentric reference frame.
 
 \section{Kalman Filters}
 
+For the application of an Extended Kalman Filter, the system needs to be expressed in a state-space formulation. There are no control inputs, so the
+
 \section{Artificial Neural Networks}
+
+I plan on using available implementations of ANN's, therefore this part is reserved for the methodology work package.
+
+\section{Image processing}
+
+
+
+\section{Simulation and relative motion}
 
 \end{document}
