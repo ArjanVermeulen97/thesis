@@ -268,6 +268,7 @@ Note that these values are a good ballpark, their accuracy isn't extremely relev
  \item eccentricity: mean 0.4, stddev 0.2, discarding entries outside [0, 1)
  \item inclination: seems to be exponential, $\propto 0.5^{x/20\deg}$
  \item True anomaly at epoch: uniform distribution.
+
 \end{itemize}
 From then, I propose using the \textbf{Minimum Orbital Intersection Distance} (perhaps calculated for every 1 deg increment along the orbit) as the main metric of threatening-ness. Calculating the MOID is not as straightforward as it may seem, and no good method was found online. I propose the following:
 \begin{enumerate}
@@ -285,7 +286,11 @@ The next step involves generating the observations. Initially, the system should
  \item Calculate $\delta = \tan^{-1}(z/\sqrt{x^2 + y^2})$. As declination is limited to [-90, 90], use regular math.atan.
  \item Calculate $\cos \alpha$ of phase angle $\alpha$ (there's no need to convert back to angles because of \autoref{eq:phase}): $\cos \alpha = (\vec{r_{s/c}} \cdot \vec{r_{t}}) / (||\vec{r_{s/c}}|| \cdot ||\vec{r_{t}||})$.
  \item Calculate apparent magnitude $m$ (distances in AU): $m = H + 5 \log _{10} (||\vec{r_{s/c}}|| \cdot ||\vec{r_{t}||}) - 2.5 \log _{10}\sqrt{0.5*(1+\cos \alpha)}$
+ \item Round values to precision of the sensor.
 \end{enumerate}
+
+\subsection{Optics}
+
 
 
 \section{Image processing}
