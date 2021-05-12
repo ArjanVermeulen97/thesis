@@ -224,7 +224,8 @@ The process of determining the admissible values of $\vec{r}$ is as follows:
 
 The first step assume phase integral is:
 \begin{equation}
- \phi(\alpha) = |\cos{\theta}|
+ \phi(\alpha) = |\cos{\frac{1}{2}\alpha}| = \sqrt{\frac{1+\cos \alpha}{2}}
+ \label{eq:phase}
 \end{equation}
 
 
@@ -244,12 +245,50 @@ For the application of an Extended Kalman Filter, the system needs to be express
 
 \section{Artificial Neural Networks}
 
-I plan on using available implementations of ANN's, therefore this part is reserved for the methodology work package.
+I plan on using available implementations of ANN's, therefore this part is reserved for the methodology work package. Special care should be taken when training the ANN though. As an unbiased selection of targets as training data will include allmost purely non-threatening asteroids, the system might learn simply to always estimate a target as non-threatening. Therefore, a representative sample should be used. Additionally, the ANN should not have access to ``too good'' data, or any data which it could not reasonably have in real life (e.g. look-ahead bias). ANN's are quick to pick up on these things and will quickly overfit.
 
 \section{Image processing}
 
+\section{Relative motion}
+
+\section{Simulation}
+The optics simulation will be constructed in two steps: firstly, only the angular measurements will be constructed. Then, the ``image'' corresponding to it will also be made.\\
+
+First off, an ``asteroid'' is generated using a random sampling method. We can use the distribution of Bottke et al from the literature study, combined with the size-distribution power law:
+\begin{equation}
+ \frac{dN}{dD} \propto D^{-k}
+\end{equation}
+with D in the range of 10 to 1000m, and k=3. Taking an albedo of $p$=0.15, stddev 0.05, we can easily calculate the absolute magnitude:
+\begin{equation}
+ H = -5 * \log _{10} \left(\frac{D\sqrt{p}}{1329\mathrm{km}}\right)
+\end{equation}
+Note that these values are a good ballpark, their accuracy isn't extremely relevant for the rest of the research therefore I propose not taking too much time assessing them. For the other values, we can use:
+\begin{itemize}
+ \item semi-major axis: mean 2, stddev 1, discarding entries outside (0, 4)
+ \item eccentricity: mean 0.4, stddev 0.2, discarding entries outside [0, 1)
+ \item inclination: seems to be exponential, $\propto 0.5^{x/20\deg}$
+ \item True anomaly at epoch: uniform distribution.
+\end{itemize}
+From then, I propose using the \textbf{Minimum Orbital Intersection Distance} (perhaps calculated for every 1 deg increment along the orbit) as the main metric of threatening-ness. Calculating the MOID is not as straightforward as it may seem, and no good method was found online. I propose the following:
+\begin{enumerate}
+ \item Project the point P along the target's orbit onto the ecliptic. Call this point P'. Note that in the heliocentric frame this just means setting $z$ to 0.
+ \item Extend a line from the Sun through P' onto Earth's orbit (it is the closest point to the projected point, and the only difference between the projected and actual point is perpendicular to the orbit of Earth, therefore this follows from pythagoras' theorem: if $x > y$, then $\sqrt{x^2 + z^2} > \sqrt{y^2 + z^2}$). Call this E'. It follows that this is the point along Earth's orbit closest to the target's orbit. This is also straightfoward: $\theta = \tan^{-1}(y_t/x_t), [x_\oplus, y_\oplus]^T = 1\mathrm{AU} * [\cos \theta, \sin \theta ]^T$
+ \item Calculate the Euclidian (pythogoras) distance between E' and P (Not P'!). This is the closest distance.
+ \item Iterate over all possible (or applicable) values of P, the minimum value represents the MOID.
+\end{enumerate}
+
+The next step involves generating the observations. Initially, the system should just be concerned with providing right ascenscion $\alpha$, declination $\delta$ and apparent magnitude $m$. At a later stage (see section on optics), the ``image'' can be generated. Generating the measurements can be done as follows:
+
+\begin{enumerate}
+ \item Given the position of the spacecraft and the target in the heliocentric frame, calculate the position of the target in the spacecraft-centered frame (note that we are only providing RA and DEC, as such the camera frame is not yet necessary).
+ \item Calculate $\alpha = \tan^{-1}(y/x)$. In python it's better to use the math.atan2(y, x) function, as it returns values in the range of [0, 360).
+ \item Calculate $\delta = \tan^{-1}(z/\sqrt{x^2 + y^2})$. As declination is limited to [-90, 90], use regular math.atan.
+ \item Calculate $\cos \alpha$ of phase angle $\alpha$ (there's no need to convert back to angles because of \autoref{eq:phase}): $\cos \alpha = (\vec{r_{s/c}} \cdot \vec{r_{t}}) / (||\vec{r_{s/c}}|| \cdot ||\vec{r_{t}||})$.
+ \item Calculate apparent magnitude $m$ (distances in AU): $m = H + 5 \log _{10} (||\vec{r_{s/c}}|| \cdot ||\vec{r_{t}||}) - 2.5 \log _{10}\sqrt{0.5*(1+\cos \alpha)}$
+\end{enumerate}
 
 
-\section{Simulation and relative motion}
+\section{Image processing}
+
 
 \end{document}
