@@ -285,15 +285,70 @@ IMPORTANT: As the spacecraft is also orbiting the sun, all calculations should b
 
 \section{Kalman Filters}
 
-For the application of an Extended Kalman Filter, the system needs to be expressed in a state-space formulation. There are no control inputs, so the
+The basis of the application of an Extended Kalman Filter is straightforward, so instead I will focus here on the derivation of the jacobians needed for the state-transition and observation matrices. There are no control inputs, thus we are only concerned with conversion of the state vector. Recall the Jacobian:
+\begin{equation}
+ \frac{\partial f}{\partial \vec{x}} = \mathbf{J}_f(\vec{x}) =
+ \begin{bmatrix}
+  \frac{\partial f_1}{\partial x_1} & \hdots & \frac{\partial f_1}{\partial x_n} \\
+  \vdots & \ddots & \vdots \\
+  \frac{\partial f_m}{\partial x_1} & \hdots & \frac{\partial f_m}{\partial x_n}
+ \end{bmatrix}
+\end{equation}
+
+Then, the state-transition and observation matrices can be approximated by:
+\begin{align}
+ \mathbf{F}_k &\approx \left. \frac{\partial f}{\partial \vec{x}} \right|_{\hat{x}_{k-1|k-1},\vec{u}_k} \\
+ \mathbf{H}_k &\approx \left. \frac{\partial f}{\partial \vec{x}} \right|_{\hat{x}_{k|k-1}}
+\end{align}
+
+As the Keplerian orbital elements are not very convenient to work with, the following state vector will be used:
+
+\begin{equation}
+ \vec{x} = \begin{bmatrix} x_h \\ y_h \\ z_h \\ \dot{x}_h \\ \dot{y}_h \\ \dot{z}_h \end{bmatrix}
+\end{equation}
+
+The equations governing the state-transition matrix were found previously:
+\begin{align}
+ \vec{r}(T+\Delta t) &= \vec{r}(T) + \vec{v}(T)\Delta t \\
+ \vec{v}(T+\Delta t) &= \vec{v}(T) + \vec{a}(T)\Delta t \\
+ \vec{a}(T+\Delta t) &= \frac{\mu_\odot}{||r(T)||^3}\vec{r}(T)
+\end{align}
+It follows quickly that the first three rows of the Jacobian are:
+\begin{equation}
+ \frac{\partial \vec{r}}{\partial \vec{x}} = 
+ \begin{bmatrix}
+  1 & 0 & 0 & \Delta t & 0 & 0 \\
+  0 & 1 & 0 & 0 & \Delta t & 0 \\
+  0 & 0 & 1 & 0 & 0 & \Delta t
+ \end{bmatrix}
+\end{equation}
+For the 4th through 6th row, we require the accelerations:
+\begin{align}
+ \frac{d^2 x_h}{dt^2} &= \frac{\mu_\odot x_h}{\left(x_h^2 + y_h^2 + z_h^2\right)^{1.5}} \\
+ \frac{d^2 y_h}{dt^2} &= \frac{\mu_\odot y_h}{\left(x_h^2 + y_h^2 + z_h^2\right)^{1.5}} \\
+ \frac{d^2 z_h}{dt^2} &= \frac{\mu_\odot z_h}{\left(x_h^2 + y_h^2 + z_h^2\right)^{1.5}}
+\end{align}
+As an example, for $\dot{x_h}$:
+\begin{align}
+ \frac{\partial}{\partial x_h} \left(\frac{\mu_\odot x_h}{\left(x_h^2 + y_h^2 + z_h^2\right)^{1.5}}\right) &=
+ \mu_\odot \left(\frac{1}{\left(x_h^2 + y_h^2 + z_h^2\right)^{1.5}} - \frac{3x_h^2}{\left(x_h^2 + y_h^2 + z_h^2\right)^{2.5}}\right) \\
+ \frac{\partial}{\partial y_h} \left(\frac{\mu_\odot x_h}{\left(x_h^2 + y_h^2 + z_h^2\right)^{1.5}}\right) &=
+ -\mu_\odot\frac{3 x_h y_h}{\left(x^2 + y^2 + z^2\right)^{2.5}} \\
+ \frac{\partial}{\partial z_h} \left(\frac{\mu_\odot x_h}{\left(x_h^2 + y_h^2 + z_h^2\right)^{1.5}}\right) &=
+ -\mu_\odot\frac{3 x_h z_h}{\left(x^2 + y^2 + z^2\right)^{2.5}} \\
+\end{align}
+These terms make up the first three columns of the lower three rows. The second three colums are again the identity matrix. For the observation matrix, we have the following:
+\begin{align}
+ \alpha &= \tan ^{-1} \left( \frac{ y_h^t - y_h^s}{x_h^t - x_h^s}\right) \\
+ \delta &= \tan^{-1}\left(\left(z_h^t - z_h^s\right)\sqrt{\left(x_h^t - x_h^s\right)^2 + \left(y_h^t - y_h^s\right)^2}\right)
+\end{align}
+Note: when determining the partial derivatives, the position of the spacecraft is a constant; it is not determined by the Kalman Filter.
+
+
 
 \section{Artificial Neural Networks}
 
 I plan on using available implementations of ANN's, therefore this part is reserved for the methodology work package. Special care should be taken when training the ANN though. As an unbiased selection of targets as training data will include allmost purely non-threatening asteroids, the system might learn simply to always estimate a target as non-threatening. Therefore, a representative sample should be used. Additionally, the ANN should not have access to ``too good'' data, or any data which it could not reasonably have in real life (e.g. look-ahead bias). ANN's are quick to pick up on these things and will quickly overfit.
-
-\section{Image processing}
-
-\section{Relative motion}
 
 \section{Simulation}
 The optics simulation will be constructed in two steps: firstly, only the angular measurements will be constructed. Then, the ``image'' corresponding to it will also be made.\\
