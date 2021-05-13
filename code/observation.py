@@ -8,7 +8,7 @@ from random import normalvariate, expovariate, uniform, seed
 import matplotlib.pyplot as plt
 import numpy as np
 
-seed(3)
+seed(13)
 
 # Parameters
 semiMajorMean = 2
@@ -19,7 +19,7 @@ eccentricityMean = 0.4
 eccentricityStd = 0.2
 eccentricityMin = 0
 eccentricityMax = 1
-inclinationMean = 0.02
+inclinationMean = 0.05
 inclinationMin = 0
 inclinationMax = 180
 anomalyMin = 0
@@ -34,12 +34,12 @@ magMax = 25
 # Rotation matrices
 def R_1(a):
     R = np.array([[1, 0, 0],
-                  [0, cos(a), sin(a)],
+                  [0, cos(a), 1*sin(a)],
                   [0, -1*sin(a), cos(a)]])
     return R
 
 def R_2(a):
-    R = np.array([[cos(a), 0, sin(a)],
+    R = np.array([[cos(a), 0, 1*sin(a)],
                   [0, 1, 0],
                   [-1*sin(a), 0, cos(a)]])
     return R
@@ -91,21 +91,29 @@ def pos_heliocentric(a, e, i, theta, raan, argPeri):
     
     return r_helio
 
-def calc_MOID(a, e, i, raan, argPeri):
+def calc_MOID(xs, ys, zs):
     MOID = 1000
-    for theta in range(-180, 180):
-        position = pos_heliocentric(a, e, i, theta, raan, argPeri)
-        x = position[0][0]
-        y = position[1][0]
-        z = position[2][0]
+    for i in range(len(xs)):
+        x = xs[i]
+        y = ys[i]
+        z = zs[i]
         a = atan2(y, x)
         x_e = cos(a)
         y_e = sin(a)
         d = sqrt((x-x_e)**2 + (y-y_e)**2 + z**2)
-        print(theta, [x, y, z, x_e, y_e, d])
         if d < MOID:
             MOID = d
     return MOID
+
+def print_asteroid(asteroid):
+    print(f"semi-major axis: {asteroid[0]}")
+    print(f"eccentricity:    {asteroid[1]}")
+    print(f"icnlination:     {asteroid[2]}")
+    print(f"RA of the AN:    {asteroid[4]}")
+    print(f"Arg of Periaps:  {asteroid[5]}")
+    print(f"True anomaly:    {asteroid[3]}")
+    
+    return None
         
 
 fig = plt.figure()
@@ -122,14 +130,11 @@ ax.plot(xs, ys, zs, c='green')
 ax.scatter(*pos_heliocentric(1, 0, 0, 0, 0, 0), c='green')
 
 for i in range(3):
-    color = ['red', 'black', 'blue'][i]
+    color = ['red', 'black', 'blue', 'purple', 'cyan'][i]
+    print(f"Asteroid {i+1}: {color}")
+    print("-----------------------")
     asteroid = gen_asteroid()
-    print(pos_heliocentric(*asteroid))
-    print(calc_MOID(asteroid[0],
-                    asteroid[1],
-                    asteroid[2],
-                    asteroid[4],
-                    asteroid[5]))
+    print_asteroid(asteroid)
     
     positions = [pos_heliocentric(asteroid[0],
                                   asteroid[1],
@@ -137,16 +142,23 @@ for i in range(3):
                                   theta,
                                   asteroid[4],
                                   asteroid[5])
-                 for theta in range(0, 180)]
+                 for theta in range(0, 360)]
     
     xs = [item[0][0] for item in positions]
     ys = [item[1][0] for item in positions]
     zs = [item[2][0] for item in positions]
+    print(f"MOID:            {calc_MOID(xs, ys, zs)}")
+    print()
     
     ax.plot(xs, ys, zs, c=color)
     ax.scatter(*pos_heliocentric(*asteroid), c=color)
 
-# for angle in range(0, 360):
-#     ax.view_init(30, angle)
-#     plt.draw()
-#     plt.pause(.001)
+
+ax.set_xlim3d(-2, 2)
+ax.set_ylim3d(-2, 2)
+ax.set_zlim3d(-2, 2)
+
+for angle in range(0, 360):
+    ax.view_init(30, angle)
+    plt.draw()
+    plt.pause(.001)
