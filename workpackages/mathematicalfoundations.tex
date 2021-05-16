@@ -310,7 +310,9 @@ Lastly, an appropriate gain must be determined for the detector (i.e. number of 
 
 \section{Image processing}
 
-For the image processing, most techniques are already described in mathematical detail in the loterature study. I think primarily, it will be necessary to see how well they perform (in terms of significant digits as a function of how strong the input signal is), and if necessary improve or adjust the techniques based on that.
+For the image processing, most techniques are already described in mathematical detail in the loterature study. I think primarily, it will be necessary to see how well they perform (in terms of significant digits as a function of how strong the input signal is), and if necessary improve or adjust the techniques based on that. \\
+
+In the literature study, it was found that a precision of 5 significant digits in the angle (in degrees) should yield satisfactory results. These precisions are achievable, although it might be interesting to see how the various methods perform under reduced accuracy. In essence the image processing will serve to prove the feasibility of these precisions.
 
 \section{Numerical Methods}
 
@@ -425,12 +427,24 @@ Note: when determining the partial derivatives, the position of the spacecraft i
 
 Note that an angular observation has no way of measuring the velocity of the target. Therefore all terms relating to the velocities are zero. This might present problems with observability further down the line, but that is after all a part of the research question.
 
-IMPORTANT: It is probably a good idea to validate the above expressions using e.g. an implementation from Sympy.
+IMPORTANT: It is probably a good idea to verify the above expressions using e.g. an implementation from Sympy.
 
 
-\section{Artificial Neural Networks}
+\section{Artificial Neural Networks and Other Machine Learning}
 
-I plan on using available implementations of ANN's, therefore this part is reserved for the methodology work package. Special care should be taken when training the ANN though. As an unbiased selection of targets as training data will include allmost purely non-threatening asteroids, the system might learn simply to always estimate a target as non-threatening. Therefore, a representative sample should be used. Additionally, the ANN should not have access to ``too good'' data, or any data which it could not reasonably have in real life (e.g. look-ahead bias). ANN's are quick to pick up on these things and will quickly overfit.
+I plan on using available implementations of ANN's, therefore this part is reserved for the methodology work package. Special care should be taken when training the ANN though. As an unbiased selection of targets as training data will include allmost purely non-threatening asteroids, the system might learn simply to always estimate a target as non-threatening. Therefore, a representative sample should be used. Additionally, the ANN should not have access to ``too good'' data, or any data which it could not reasonably have in real life (e.g. look-ahead bias). ANN's are quick to pick up on these things and will quickly overfit. \\
+
+Although they will probably not function very well, it is worth evaluating some solutions based on classical machine learning. Primarily, I think support vector regressions, decision tree regressions and k-NN regressors might be worth a look. They should be quick to implement and assess, and will probably not yield useful results. Neverthelss, it is important to assess more simple forms of ML before considering neural networks.
+
+\section{Open Questions}
+\begin{itemize}
+ \item Is there a better way to obtain the relative motion, perhaps for specific cases of orbits?
+ \item How to do non-linear fitting of the points in the numerical model?
+ \item Are there other coordinate frames we need to consider?
+ \item Is MOID a good metric?
+ \item When using MOID, and considering we are not doing orbit determination per se, do we need more accurate models than Kepler orbits?
+\end{itemize}
+
 
 
 \end{document}
