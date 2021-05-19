@@ -1,0 +1,276 @@
+\chapter{Function GumbelUnc.mat}
+
+\begin{lstlisting}
+%% GumbelUnc
+% Quantifictaion of Gumbel extrapolation unceirtainty
+%% Parameters
+% # |N| = Available data points 
+% # |r| = Fits per |N|
+% # |CI| = Confidence Interval of extrapolated values: |68| , |95| or
+% |99.7| %
+% # |normalise| = normalises the axis with: |'on'| , |'xon'| , |'yon'| or
+% |'off'|
+% # Optional: |mu| = mu of the Sample Gumbel |(default = 10)|
+% # Optional: |beta| = beta of the Sample Gumbel |(default = 4)|
+%% Syntax
+% |[Returnlvlplot] = GumbelUnc(N,r,CI,normalise,mu,beta)|
+% 
+% |[Returnlvlplot,musigma] = GumbelUnc(N,r,CI,normalise,mu,beta)| 
+% 
+% |[Returnlvlplot,musigma,SampleGumbel] =
+% GumbelUnc(N,r,CI,normalise,mu,beta)|
+%% Description
+% *|GumbelUnc(N,r,CI,normalise,mu,beta)|* quantifies in a 
+% normalised way the uncertainty of extrapolation from 2 towards |N|
+% available data points. It plots the return level plot and saves under
+% GumbelUnc. Both axis can be normalised with |normalise|. Furthermore the
+% sample Gumbel can be adjusted entering for |mu| and |beta|.
+%%
+% *|[Returnlvlplot] = GumbelUnc(N,r,CI,normalise,mu,beta)|* gives same 
+% output as |GumbelUnc(N,r,CI,normalise,mu,beta)|
+%%
+% *|[Returnlvlplot,musigma] = GumbelUnc(N,r,CI,normalise,mu,beta)|* stores
+% the mu and sigmas of |N| normal distributions in the workspace in |musigma|
+%%
+% *|[Returnlvlplot,musigma,SampleGumbel] =
+% GumbelUnc(N,r,CI,normalise,mu,beta)|*
+% Gives a figure of the Gumbel from which N samples are drawn for |r| times
+% per N. Negative values of the Sample Gumbel or a Sample Gumbel that is
+% elevated too high may distort return level plot outcomes. 
+
+%% Function
+function [Returnlvlplot,musigma,SampleGumbel] = ...
+    GumbelUnc(N,r,CI,normalise,mu,beta)
+
+%some in- and output checks
+if nargout > 3
+    error('GumbelUnc:Too many outputs, give a maximum of 3 outputs');
+end
+        
+
+if nargin > 6
+    error('GumbelUnc: Too many inputs, give maximum of 6 inputs');
+elseif nargin < 4
+    error('GumbelUnc: Too fieuw inputs, give a minimum of 4 inputs');
+end
+
+switch nargin
+    case 4
+        mu = 10;
+        beta = 4;
+    case 5
+        error('Specify both mu and beta for sample Gumbel');
+end
+
+if mu > N;
+    error('mu cannot be greater than N.')
+end
+
+if CI == 68;
+    Nsigma = 1;
+elseif CI == 95;
+    Nsigma = 2;
+elseif CI == 99.7;
+    Nsigma = 3;
+else 
+    error('Confidence Interval (CI) must be equal to 68%, 95% or 99.7% without percent sign.')
+end
+
+%%
+% Construction Sample Gumbel
+%
+% The confidence interval from which is Sampled is between
+% 0.1% and 99.9%.
+%confidence interval
+Rb = mu - (beta * log(-log(0.999)));
+Lb = mu - (beta * log(-log(0.001)));
+
+%creating values that are drawn (X) acording to the Sample Gumbel (f)
+X = linspace(Lb,Rb,N); 
+f = gevpdf(X,0,beta,mu);
+
+%some warnings for Sample Gumbel to prevent distortion in return level plot
+if f(N)/max(f) > 0.05;
+    warning('Sample Gumbel does not represent extreme values well because of limited use of probabilities. Change mu, beta, Duration0 or V.')
+end
+
+if f(find(X >= 0,1))/max(f) >= 0.05
+    warning('Sample Gumbel does not represent extreme values well because of significant negative values probabilities.')
+end
+
+%% 
+% Unceirtanty of extrapolation toward |N| 
+%
+% Here de data is generated using |polyfit| as fitting tool. Due to the
+% logaritmic axis a linear relation exists. The |r| fitted lineair graphs
+% are extrapolated towards |FN| which is the |N| th |X| value. A normal 
+% distribution of these values is fitted and described by mu and sigma.
+% both are stored in the parameter |Normal|. |N| mu's and sigma's are
+% iteratively stored in |Allmusigma|.
+
+FN = -log(-log(N/(1+N)));   %the probability of the extremest value
+
+Allmusigma = zeros(N,2);
+for i = 2:N;                %minimal of 2 datapoints for fit
+   betamu = zeros(r,2);
+   Q = zeros(r,1);
+   for j = 1:r;             %r extreme value points 
+       x = sort(X(discretesample(f,i)));        %Sort values 
+       P = -log(-log((1:i)/(1+i)));             %Plot positions
+       betamu(j,:) = polyfit(P,x,1);            %Param. of lineair graph
+       Q(j,:) = betamu(j,2) + (betamu(j,1)*FN); %All extrapolated values
+   end
+  Normal = fitdist(Q,'Normal');                 %Fit a Normal distribution 
+  Allmusigma(i,:)= [Normal.mu Normal.sigma];    %Store the mu and sigma's 
+end
+
+%% 
+% Plot normal distributions
+
+%normalisation towards Xtrue
+Xtrue = ones(N,1)*(mu+(beta*FN));
+
+NormaliseN = ((1:N)./N)*100;
+NormaliseXmu = ((Allmusigma(:,1) - Xtrue)./Xtrue)*100;
+NormaliseXup = (((Allmusigma(:,1)+(Nsigma*Allmusigma(:,2)))...
+    - Xtrue)./Xtrue)*100;
+NormaliseXdown = (((Allmusigma(:,1)-(Nsigma*Allmusigma(:,2)))...
+    - Xtrue)./Xtrue)*100;
+
+%Sample Gumbel that represents the data
+SampleGumbel = figure;
+plot(X,f,'k')             
+xlabel('$X$','Interpreter','LaTeX')
+ylabel('$f$','Interpreter','LaTeX')
+title({'Sample Gumbel'},'Interpreter','LaTeX') 
+
+set(gcf, 'Color', 'none')
+set(gcf, 'Units', 'centimeters')
+set(gcf, 'OuterPosition', [5, 5, 11.7, 9.5])
+
+%manage output arguments
+switch nargout
+    case 0
+        close figure 1
+    case 1
+        close figure 1
+    case 2
+        close figure 1
+end
+
+%check axis for normalisation
+normalis1 ='off';
+normalis0 ='on';
+normalis2 ='yon';
+normalis3 ='xon';
+
+if strcmp(normalis0,normalise)==1;   
+    Returnlvlplot = figure;
+    hold on
+    plot(NormaliseN(2:N),NormaliseXmu(2:N),'k')
+    plot(NormaliseN(2:N),NormaliseXup(2:N),'k')
+    plot(NormaliseN(2:N),NormaliseXdown(2:N),'k')
+    plot(NormaliseN,zeros(N,1),'--k')
+    xlabel('$N_{normalised}~[\%]$','Interpreter','LaTeX')
+    ylabel('$X_{normalised}~[\%]$','Interpreter','LaTeX')
+    legend({'$\mu$',['$\mu+' num2str(Nsigma) '\sigma$'],...
+        ['$\mu-' num2str(Nsigma) '\sigma$'],'Expected $\mu$'},...
+        'Interpreter','LaTeX')
+    title([ num2str(CI) '\% Confedence Interval of Gumbel extrapolation from 2 toward~' num2str(N) '~data points'],...
+        'Interpreter','LaTeX')
+    annotation('textbox',[0.5,0.23,0.31,0.15],'String',...
+        {'Information Sample Gumbel:',['$N_{sample}~=~$' num2str(N-1)],...
+        ['$\beta_{sample}=~$' num2str(beta)],['$\mu_{sample}~=~$' num2str(mu)]},...
+        'VerticalAlignment','middle','HorizontalAlignment','center',...
+        'FitBoxToText','on','LineWidth',0.1,'Interpreter','LaTeX')
+    hold off
+
+elseif strcmp(normalis1,normalise)==1;
+    Returnlvlplot = figure;
+    hold on
+    plot(2:N,Allmusigma(2:N,1),'k')
+    plot(2:N,Allmusigma(2:N,1)+(Nsigma*Allmusigma(2:N,2)),'k')
+    plot(2:N,Allmusigma(2:N,1)-(Nsigma*Allmusigma(2:N,2)),'k')
+    plot(1:N,Xtrue,'--k')
+    xlabel('$N~[-]$','Interpreter','LaTeX')
+    ylabel('$X~[F]$','Interpreter','LaTeX')
+    legend({'$\mu$',['$\mu+' num2str(Nsigma) '\sigma$'],...
+        ['$\mu-' num2str(Nsigma) '\sigma$'],'Expected $\mu$'},...
+        'Interpreter','LaTeX')
+    title([ num2str(CI) '\% Confedence Interval of Gumbel extrapolation from 2 toward~' num2str(N) '~data points'],...
+        'Interpreter','LaTeX')
+    annotation('textbox',[0.5,0.23,0.31,0.15],...
+        'String',{'Information Sample Gumbel:',...
+        ['$N_{sample}~=~$' num2str(N-1)],...
+        ['$\beta_{sample}=~$' num2str(beta)],...
+        ['$\mu_{sample}~=~$' num2str(mu)]},...
+        'VerticalAlignment','middle','HorizontalAlignment','center',...
+        'FitBoxToText',...
+        'on','LineWidth',0.1,'Interpreter','LaTeX')
+    hold off
+    
+elseif strcmp(normalis2,normalise)==1;
+    Returnlvlplot = figure;
+    hold on
+    plot(2:N,NormaliseXmu(2:N),'k')
+    plot(2:N,NormaliseXup(2:N),'k')
+    plot(2:N,NormaliseXdown(2:N),'k')
+    plot(1:N,zeros(N,1),'--k')
+    xlabel('$N~[-]$','Interpreter','LaTeX')
+    ylabel('$X_{normalised}~[\%]$','Interpreter','LaTeX')
+    legend({'$\mu$',['$\mu+' num2str(Nsigma) '\sigma$'],...
+        ['$\mu-' num2str(Nsigma) '\sigma$'],'Expected $\mu$'},...
+        'Interpreter','LaTeX')
+    title([ num2str(CI) '\% Confedence Interval of Gumbel extrapolation from 2 toward~' num2str(N) '~data points'],...
+        'Interpreter','LaTeX')
+    annotation('textbox',[0.5,0.23,0.31,0.15],'String',...
+        {'Information Sample Gumbel:',['$N_{sample}~=~$' num2str(N-1)],...
+        ['$\beta_{sample}=~$' num2str(beta)],['$\mu_{sample}~=~$' num2str(mu)]},...
+        'VerticalAlignment','middle','HorizontalAlignment','center',...
+        'FitBoxToText','on','LineWidth',0.1,'Interpreter','LaTeX')
+    hold off
+    
+elseif strcmp(normalis3,normalise)==1;
+    Returnlvlplot = figure;
+    hold on
+    plot(NormaliseN(2:N),Allmusigma(2:N,1),'k')
+    plot(NormaliseN(2:N),Allmusigma(2:N,1)+(Nsigma*Allmusigma(2:N,2)),'k')
+    plot(NormaliseN(2:N),Allmusigma(2:N,1)-(Nsigma*Allmusigma(2:N,2)),'k')
+    plot(NormaliseN,Xtrue,'--k')
+    xlabel('$N_{normalised}~[\%]$','Interpreter','LaTeX')
+    ylabel('$X~[F]$','Interpreter','LaTeX')
+    legend({'$\mu$',['$\mu+' num2str(Nsigma) '\sigma$'],...
+        ['$\mu-' num2str(Nsigma) '\sigma$'],'Expected $\mu$'},...
+        'Interpreter','LaTeX')
+    title([ num2str(CI) '\% Confedence Interval of Gumbel extrapolation from 2 toward~' num2str(N) '~data points'],...
+        'Interpreter','LaTeX')
+    annotation('textbox',[0.5,0.23,0.31,0.15],'String',...
+        {'Information Sample Gumbel:',['$N_{sample}~=~$' num2str(N-1)],...
+        ['$\beta_{sample}=~$' num2str(beta)],['$\mu_{sample}~=~$' num2str(mu)]},...
+        'VerticalAlignment','middle','HorizontalAlignment','center',...
+        'FitBoxToText','on','LineWidth',0.1,'Interpreter','LaTeX')
+    hold off
+end
+
+%manage output arguments
+musigma = Allmusigma;
+
+switch nargout
+    case 0
+        clear musigma
+    case 1
+        clear musigma
+end
+
+set(gcf, 'Color', 'none')
+set(gcf, 'Units', 'centimeters')
+set(gcf, 'OuterPosition', [5, 5, 11.7, 9.5])
+
+end
+
+%% Note
+% This function uses *discretesample.m* and thus before use this must
+% be present in the same directory
+
+
+\end{lstlisting}
