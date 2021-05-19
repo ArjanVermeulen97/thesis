@@ -17,7 +17,8 @@
 This works package details the mathematical foundations for the thesis work. This will be split up into several sections:
 \begin{itemize}
 \item Coordinate systems and transformations
-\item Three-body orbital mechanics (summary)
+\item Orbital mechanics and relative motion
+\item Simulation of target asteroids, optics and image processing
 \item Definitions for the numerical methods
 \item Definitions for the Kalman filter methods
 \item Definitions for the neural networks
@@ -54,12 +55,10 @@ To specify the observations of the target in the spacecraft's camera, the spacec
  \label{fig:cameracoordinates}
 \end{figure}
 
-TRANSFORMATIONS
-
 \section{Alternative coordinate systems}
 A problem that will be encountered later in the process is the ``conversion'' from a preliminary orbit determination to an impact threat assessment. For this, it might be necessary to tell the system where Earth is. (alternatively, other metrics such as MOID could be looked at, leading to a system where the target is analysed in more detail from Earth). Instead of giving the system a measure of Earth's location, it might be convenient to define a coordinate system in which both Earth and the Sun (as it is the main gravitational attractor) are fixed. We shall define the Sun-Earth ecliptic reference frame as the right-handed frame with the origin at the center of the Sun, the Z+ axis pointing North perpendicular to the ecliptic, the X+ axis pointing through the center of Earth, and the Y+ axis completing the right-handed system. \\
 
-The advantage of this system is obvious: if we assume Earth's orbit to be circular, the position of Earth will always be $[1, 0, 0]^T~AU$, and therefore the problem simplifies to determining the hazard to that point. However, as the reference frame is no longer non-rotating, the dynamics of the motion vastly complicate.
+The advantage of this system is obvious: if we assume Earth's orbit to be circular, the position of Earth will always be $[1, 0, 0]^T~AU$, and therefore the problem simplifies to determining the hazard to that point. However, as the reference frame is no longer non-rotating, the dynamics of the motion vastly complicate. This system is probably only necessary if we actually determine whether an asteroid will impact earth, instead of using a different system for assessing the hazard of an asteroid.
 
 \section{Transformations}
 
@@ -90,7 +89,7 @@ Then:
 The rotation matrices are given by:
 \begin{align}
  \mathbf{R_1}(\theta) &= \begin{bmatrix}1 & 0 & 0 \\ 0 & \cos \theta & -\sin \theta \\ 0 & \sin \theta & \cos \theta \end{bmatrix} \\
- \mathbf{R_2}(\theta) &= \begin{bmatrix} \cos \theta & 0 & - \sin \theta \\ 0 & 1 & 0 \\ - \sin \theta & 0 & \cos \theta \end{bmatrix} \\
+ \mathbf{R_2}(\theta) &= \begin{bmatrix} \cos \theta & 0 & - \sin \theta \\ 0 & 1 & 0 \\ \sin \theta & 0 & \cos \theta \end{bmatrix} \\
  \mathbf{R_3}(\theta) &= \begin{bmatrix} \cos \theta & -\sin \theta & 0 \\ \sin \theta & \cos \theta & 0 \\ 0 & 0 & 1 \end{bmatrix}
 \end{align}
 
@@ -100,7 +99,7 @@ The rotation matrices are given by:
 
 
 
-\section{Two- and Three-body Orbital Mechanics}
+\section{Two-body Orbital Mechanics}
 
 The equations of motion need to be known in order to accurately model the asteroids and to e.g. apply the kalman filter and parts of the numerical methods. The motion of the spacecraft around the Sun is governed soleley by gravity. By assuming the Sun to be at rest (a fair assumption, as $m_{S/C} << m_\odot$), only gravitational force is to be considered:
 
@@ -238,8 +237,82 @@ After which we can iterate by simply:
 \end{equation}
 
 
+\section{Simulation}
+The optics simulation will be constructed in two steps: firstly, only the angular measurements will be constructed. Then, the ``image'' corresponding to it will also be made.\\
 
+First off, an ``asteroid'' is generated using a random sampling method. We can use the distribution of Bottke et al from the literature study, combined with the size-distribution power law:
+\begin{equation}
+ \frac{dN}{dD} \propto D^{-k}
+\end{equation}
+with D in the range of 10 to 1000m, and k=3. Taking an albedo of $p$=0.15, stddev 0.05, we can easily calculate the absolute magnitude:
+\begin{equation}
+ H = -5 * \log _{10} \left(\frac{D\sqrt{p}}{1329\mathrm{km}}\right)
+\end{equation}
+Note that these values are a good ballpark, their accuracy isn't extremely relevant for the rest of the research therefore I propose not taking too much time assessing them. For the other values, we can use:
+\begin{itemize}
+ \item semi-major axis: mean 2, stddev 1, discarding entries outside (0, 4)
+ \item eccentricity: mean 0.4, stddev 0.2, discarding entries outside [0, 1)
+ \item inclination: seems to be exponential, $\propto 0.5^{x/20\deg}$
+ \item True anomaly at epoch: uniform distribution.
 
+\end{itemize}
+From then, I propose using the \textbf{Minimum Orbital Intersection Distance} (perhaps calculated for every 1 deg increment along the orbit) as the main metric of threatening-ness. Calculating the MOID is not as straightforward as it may seem, and no good method was found online. I propose the following:
+\begin{enumerate}
+ \item Project the point P along the target's orbit onto the ecliptic. Call this point P'. Note that in the heliocentric frame this just means setting $z$ to 0.
+ \item Extend a line from the Sun through P' onto Earth's orbit (it is the closest point to the projected point, and the only difference between the projected and actual point is perpendicular to the orbit of Earth, therefore this follows from pythagoras' theorem: if $x > y$, then $\sqrt{x^2 + z^2} > \sqrt{y^2 + z^2}$). Call this E'. It follows that this is the point along Earth's orbit closest to the target's orbit. This is also straightfoward: $\theta = \tan^{-1}(y_t/x_t), [x_\oplus, y_\oplus]^T = 1\mathrm{AU} * [\cos \theta, \sin \theta ]^T$
+ \item Calculate the Euclidian (pythogoras) distance between E' and P (Not P'!). This is the closest distance.
+ \item Iterate over all possible (or applicable) values of P, the minimum value represents the MOID.
+\end{enumerate}
+
+The next step involves generating the observations. Initially, the system should just be concerned with providing right ascenscion $\alpha$, declination $\delta$ and apparent magnitude $m$. At a later stage (see section on optics), the ``image'' can be generated. Generating the measurements can be done as follows:
+
+\begin{enumerate}
+ \item Given the position of the spacecraft and the target in the heliocentric frame, calculate the position of the target in the spacecraft-centered frame (note that we are only providing RA and DEC, as such the camera frame is not yet necessary).
+ \item Calculate $\alpha = \tan^{-1}(y/x)$. In python it's better to use the math.atan2(y, x) function, as it returns values in the range of [0, 360).
+ \item Calculate $\delta = \tan^{-1}(z/\sqrt{x^2 + y^2})$. As declination is limited to [-90, 90], use regular math.atan.
+ \item Calculate $\cos \alpha$ of phase angle $\alpha$ (there's no need to convert back to angles because of \autoref{eq:phase}): $\cos \alpha = (\vec{r_{s/c}} \cdot \vec{r_{t}}) / (||\vec{r_{s/c}}|| \cdot ||\vec{r_{t}||})$.
+ \item Calculate apparent magnitude $m$ (distances in AU): $m = H + 5 \log _{10} (||\vec{r_{s/c}}|| \cdot ||\vec{r_{t}||}) - 2.5 \log _{10}\sqrt{0.5*(1+\cos \alpha)}$
+ \item Round values to precision of the sensor.
+\end{enumerate}
+
+\section{Optics}
+
+Instead of performing the last step in rounding the value to the precision of the sensor, we might also reconstruct and image and have the system figure out the angles themselves. This process involves a few steps. I will base the numbers based on the reprresentative camera as given in the literature survey.\\
+
+Firstly, the orientation of the camera reference frame has to be determined. Assuming an FOV of 10 degrees, we start by giving the camera reference frame some random offset from the first observation. This offset should be small enough such that the entire observation sequence is within the FOV. It would be good to first run some simulations with 0 offset (thus the orientation of the optical axis is directly towards the target; this is not a problem as the system will still perform the calculation, and the accuracy will be similar, but the produced images will be less convinving).
+
+With the angle defined we can model the point-spread function. Officially, this would be the Fraunhofer diffraction pattern. However, for the inteded application it is probably nicer to pick a function that is more easily integrable, such as a Gaussian spread:
+\begin{align}
+ I(q) &= I_0 exp\left(\frac{-q^2}{2\sigma^2}\right) \\
+ \sigma &= 0.42 \lambda N \\
+ N &= \frac{f}{D}
+\end{align}
+From geometry, we can find the approximate focal length from:
+\begin{equation}
+ FOV = 2 \tan ^{-1} \left(\frac{H}{2f}\right)
+\end{equation}
+With size of the sensor $H$. We found a FOV of $10.6^\circ$ previously, which for a standard 35 mm optical sensor (a ``full-frame'') will result in a focal length of 188mm. Thus the F-stop for a 500mm aperture is 0.376. This seems very
+\textit{fast}, but that is nice for the intended purpose. \\
+
+After this, we need to find the flux of the target. This can be accomplished from the apparent magnitude. If we recall that the star Vega is defined as having a magnitude of 0, at a distance of 25 ly, and a flux of (a photon has energy $E_p \approx 3\cdot 10^{-19}$K):
+\begin{equation}
+ F_{Vega} = \frac{1}{E_p}\frac{40 * L_\odot}{\pi \left(25 * 9.46 \cdot 10^{15}\right)^2} \approx 2.9 \cdot 10^{11} \mathrm{photons}~\mathrm{m}^{-2}~\mathrm{s}^{-1}
+\end{equation}
+Thus we have:
+\begin{equation}
+ F_{asteroid} = F_{vega} * 100^{-0.2m}
+\end{equation}
+Which can then be multipled by the aperture area to find the number of incident photons per second. With this determined, The integration is carried out in such a way that the integral over the PSF equals the number of incident photons. From here, the noise needs to be added.
+
+We will model 3 sources of noise: background signal, shot noise and sensor-specific noise (dark current and read noise). Firstly, the background signal. Values for this were found in the literature study. The background signal is added as a constant offset to the signal of the target. After this, the shot noise is added. The shot noise is a result of the fact that a photon flux is a discrete and random process: the exact number is photons coming in is a poisson process. Therefore, we feed all the values of the signal through a poisson process (e.g. numpy.random.poisson). Lastly, the detector noise sources. These consist of a few electrons of noise added when reading out the sensor, and a term depending on exposure time. These ``dark'' noises are best modelled as a normal distribution with mean 0 and standard deviation the specified number of electrons. These are then added to the previously found values.
+
+Lastly, an appropriate gain must be determined for the detector (i.e. number of electrons per bit in the result), which will be done through experimentation. This value will return an integer, introducing a final bit of quantization noise.
+
+\section{Image processing}
+
+For the image processing, most techniques are already described in mathematical detail in the loterature study. I think primarily, it will be necessary to see how well they perform (in terms of significant digits as a function of how strong the input signal is), and if necessary improve or adjust the techniques based on that. \\
+
+In the literature study, it was found that a precision of 5 significant digits in the angle (in degrees) should yield satisfactory results. These precisions are achievable, although it might be interesting to see how the various methods perform under reduced accuracy. In essence the image processing will serve to prove the feasibility of these precisions.
 
 \section{Numerical Methods}
 
@@ -342,57 +415,36 @@ These terms make up the first three columns of the lower three rows. The second 
  \alpha &= \tan ^{-1} \left( \frac{ y_h^t - y_h^s}{x_h^t - x_h^s}\right) \\
  \delta &= \tan^{-1}\left(\left(z_h^t - z_h^s\right)\sqrt{\left(x_h^t - x_h^s\right)^2 + \left(y_h^t - y_h^s\right)^2}\right)
 \end{align}
-Note: when determining the partial derivatives, the position of the spacecraft is a constant; it is not determined by the Kalman Filter.
+Note: when determining the partial derivatives, the position of the spacecraft is not a variable controlled by the filter; it is assumed known to a better precision than could be determined using the EKF. Therefore, we can simply take the Jacobian of $\alpha, \delta$ w.r.t the state vector. We have (all vectors in heliocentric frame):
+\begin{align}
+ \frac{\partial \alpha}{\partial x} &= \frac{y_s - y_t}{y_s^2 - 2*y_s*y_t + x_s^2 - 2*x_s*x_t + x_t^2 + y_t^2} \\
+ \frac{\partial \alpha}{\partial y} &= \frac{x_t - x_s}{y_s^2 - 2*y_s*y_t + x_s^2 - 2*x_s*x_t + x_t^2 + y_t^2} \\
+ \frac{\partial \alpha}{\partial z} &= 0 \\
+ \frac{\partial \delta}{\partial x} &= \frac{(x_t - x_s)(z_t-z_s)}{\sqrt{(x_t - x_s)^2 + (y_t - y_s)^2}\left((z_t - z_s)^2 \left((x_t - x_s)^2 + (y_s - y_t)^2\right) + 1 \right)} \\
+ \frac{\partial \delta}{\partial y} &= \frac{(y_t - y_s)(z_t - z_s)}{\sqrt{(x_t - x_s)^2 + (y_t - y_s)^2}\left( (z_t - z_s)^2 \left( ( x_t - x_s)^2 + (y_t - y_s)^2\right) + 1 \right)}\\
+ \frac{\partial \delta}{\partial z} &= \frac{\sqrt{(x_t - x_s)^2 + (y_t - y_s)^2}}{(z_t - z_s)^2\left( ( x_t - x_s)^2 + (y_t - y_s)^2\right) + 1}
+\end{align}
+
+Note that an angular observation has no way of measuring the velocity of the target. Therefore all terms relating to the velocities are zero. This might present problems with observability further down the line, but that is after all a part of the research question.
+
+IMPORTANT: It is probably a good idea to verify the above expressions using e.g. an implementation from Sympy.
 
 
+\section{Artificial Neural Networks and Other Machine Learning}
 
-\section{Artificial Neural Networks}
+I plan on using available implementations of ANN's, therefore this part is reserved for the methodology work package. Special care should be taken when training the ANN though. As an unbiased selection of targets as training data will include allmost purely non-threatening asteroids, the system might learn simply to always estimate a target as non-threatening. Therefore, a representative sample should be used. Additionally, the ANN should not have access to ``too good'' data, or any data which it could not reasonably have in real life (e.g. look-ahead bias). ANN's are quick to pick up on these things and will quickly overfit. \\
 
-I plan on using available implementations of ANN's, therefore this part is reserved for the methodology work package. Special care should be taken when training the ANN though. As an unbiased selection of targets as training data will include allmost purely non-threatening asteroids, the system might learn simply to always estimate a target as non-threatening. Therefore, a representative sample should be used. Additionally, the ANN should not have access to ``too good'' data, or any data which it could not reasonably have in real life (e.g. look-ahead bias). ANN's are quick to pick up on these things and will quickly overfit.
+Although they will probably not function very well, it is worth evaluating some solutions based on classical machine learning. Primarily, I think support vector regressions, decision tree regressions and k-NN regressors might be worth a look. They should be quick to implement and assess, and will probably not yield useful results. Neverthelss, it is important to assess more simple forms of ML before considering neural networks.
 
-\section{Simulation}
-The optics simulation will be constructed in two steps: firstly, only the angular measurements will be constructed. Then, the ``image'' corresponding to it will also be made.\\
-
-First off, an ``asteroid'' is generated using a random sampling method. We can use the distribution of Bottke et al from the literature study, combined with the size-distribution power law:
-\begin{equation}
- \frac{dN}{dD} \propto D^{-k}
-\end{equation}
-with D in the range of 10 to 1000m, and k=3. Taking an albedo of $p$=0.15, stddev 0.05, we can easily calculate the absolute magnitude:
-\begin{equation}
- H = -5 * \log _{10} \left(\frac{D\sqrt{p}}{1329\mathrm{km}}\right)
-\end{equation}
-Note that these values are a good ballpark, their accuracy isn't extremely relevant for the rest of the research therefore I propose not taking too much time assessing them. For the other values, we can use:
+\section{Open Questions}
 \begin{itemize}
- \item semi-major axis: mean 2, stddev 1, discarding entries outside (0, 4)
- \item eccentricity: mean 0.4, stddev 0.2, discarding entries outside [0, 1)
- \item inclination: seems to be exponential, $\propto 0.5^{x/20\deg}$
- \item True anomaly at epoch: uniform distribution.
-
+ \item Is there a better way to obtain the relative motion, perhaps for specific cases of orbits?
+ \item How to do non-linear fitting of the points in the numerical model?
+ \item Are there other coordinate frames we need to consider?
+ \item Is MOID a good metric?
+ \item When using MOID, and considering we are not doing orbit determination per se, do we need more accurate models than Kepler orbits?
 \end{itemize}
-From then, I propose using the \textbf{Minimum Orbital Intersection Distance} (perhaps calculated for every 1 deg increment along the orbit) as the main metric of threatening-ness. Calculating the MOID is not as straightforward as it may seem, and no good method was found online. I propose the following:
-\begin{enumerate}
- \item Project the point P along the target's orbit onto the ecliptic. Call this point P'. Note that in the heliocentric frame this just means setting $z$ to 0.
- \item Extend a line from the Sun through P' onto Earth's orbit (it is the closest point to the projected point, and the only difference between the projected and actual point is perpendicular to the orbit of Earth, therefore this follows from pythagoras' theorem: if $x > y$, then $\sqrt{x^2 + z^2} > \sqrt{y^2 + z^2}$). Call this E'. It follows that this is the point along Earth's orbit closest to the target's orbit. This is also straightfoward: $\theta = \tan^{-1}(y_t/x_t), [x_\oplus, y_\oplus]^T = 1\mathrm{AU} * [\cos \theta, \sin \theta ]^T$
- \item Calculate the Euclidian (pythogoras) distance between E' and P (Not P'!). This is the closest distance.
- \item Iterate over all possible (or applicable) values of P, the minimum value represents the MOID.
-\end{enumerate}
 
-The next step involves generating the observations. Initially, the system should just be concerned with providing right ascenscion $\alpha$, declination $\delta$ and apparent magnitude $m$. At a later stage (see section on optics), the ``image'' can be generated. Generating the measurements can be done as follows:
-
-\begin{enumerate}
- \item Given the position of the spacecraft and the target in the heliocentric frame, calculate the position of the target in the spacecraft-centered frame (note that we are only providing RA and DEC, as such the camera frame is not yet necessary).
- \item Calculate $\alpha = \tan^{-1}(y/x)$. In python it's better to use the math.atan2(y, x) function, as it returns values in the range of [0, 360).
- \item Calculate $\delta = \tan^{-1}(z/\sqrt{x^2 + y^2})$. As declination is limited to [-90, 90], use regular math.atan.
- \item Calculate $\cos \alpha$ of phase angle $\alpha$ (there's no need to convert back to angles because of \autoref{eq:phase}): $\cos \alpha = (\vec{r_{s/c}} \cdot \vec{r_{t}}) / (||\vec{r_{s/c}}|| \cdot ||\vec{r_{t}||})$.
- \item Calculate apparent magnitude $m$ (distances in AU): $m = H + 5 \log _{10} (||\vec{r_{s/c}}|| \cdot ||\vec{r_{t}||}) - 2.5 \log _{10}\sqrt{0.5*(1+\cos \alpha)}$
- \item Round values to precision of the sensor.
-\end{enumerate}
-
-\subsection{Optics}
-
-
-
-\section{Image processing}
 
 
 \end{document}
