@@ -116,49 +116,52 @@ def print_asteroid(asteroid):
     return None
         
 
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
-ax.scatter(0, 0, 0, c='yellow')
-
 # Earth
 positions = [pos_heliocentric(1, 0, 0, theta, 0, 0) for theta in range(0, 360)]
 xs = [item[0][0] for item in positions]
 ys = [item[1][0] for item in positions]
 zs = [item[2][0] for item in positions]
 
-ax.plot(xs, ys, zs, c='green')
-ax.scatter(*pos_heliocentric(1, 0, 0, 0, 0, 0), c='green')
 
-for i in range(3):
-    color = ['red', 'black', 'blue', 'purple', 'cyan'][i]
-    print(f"Asteroid {i+1}: {color}")
-    print("-----------------------")
-    asteroid = gen_asteroid()
-    print_asteroid(asteroid)
+
+## ANIMATION ##
+# fig = plt.figure()
+# ax = fig.add_subplot(projection='3d')
+# ax.scatter(0, 0, 0, c='yellow')
+
+# ax.plot(xs, ys, zs, c='green')
+# ax.scatter(*pos_heliocentric(1, 0, 0, 0, 0, 0), c='green')
+
+# for i in range(3):
+#     color = ['red', 'black', 'blue', 'purple', 'cyan'][i]
+#     print(f"Asteroid {i+1}: {color}")
+#     print("-----------------------")
+#     asteroid = gen_asteroid()
+#     print_asteroid(asteroid)
     
-    positions = [pos_heliocentric(asteroid[0],
-                                  asteroid[1],
-                                  asteroid[2],
-                                  theta,
-                                  asteroid[4],
-                                  asteroid[5])
-                 for theta in range(0, 360)]
+#     positions = [pos_heliocentric(asteroid[0],
+#                                   asteroid[1],
+#                                   asteroid[2],
+#                                   theta,
+#                                   asteroid[4],
+#                                   asteroid[5])
+#                  for theta in range(0, 360)]
     
-    xs = [item[0][0] for item in positions]
-    ys = [item[1][0] for item in positions]
-    zs = [item[2][0] for item in positions]
-    print(f"MOID:            {calc_MOID(xs, ys, zs)}")
-    print()
+#     xs = [item[0][0] for item in positions]
+#     ys = [item[1][0] for item in positions]
+#     zs = [item[2][0] for item in positions]
+#     print(f"MOID:            {calc_MOID(xs, ys, zs)}")
+#     print()
     
-    ax.plot(xs, ys, zs, c=color)
-    ax.scatter(*pos_heliocentric(*asteroid), c=color)
+#     ax.plot(xs, ys, zs, c=color)
+#     ax.scatter(*pos_heliocentric(*asteroid), c=color)
 
 
-ax.set_xlim3d(-2, 2)
-ax.set_ylim3d(-2, 2)
-ax.set_zlim3d(-2, 2)
+# ax.set_xlim3d(-2, 2)
+# ax.set_ylim3d(-2, 2)
+# ax.set_zlim3d(-2, 2)
 
-for angle in range(0, 360):
-    ax.view_init(30, angle)
-    plt.draw()
-    plt.pause(.001)
+# for angle in range(0, 360):
+#     ax.view_init(30, angle)
+#     plt.draw()
+#     plt.pause(.001)
