@@ -6,12 +6,19 @@ Author: Arjan Vermeulen
 from math import sin, cos, tan, asin, acos, atan, sqrt, pi, atan2, log
 import numpy as np
 import random
-import matplotlib
+# import matplotlib
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from matplotlib.animation import FuncAnimation, FFMpegWriter
+# import matplotlib.gridspec as gridspec
+# from matplotlib.animation import FuncAnimation, FFMpegWriter
 import datetime
 from observation import gen_asteroid, print_asteroid, calc_MOID
+import pandas as pd
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+physical_devices = tf.config.list_physical_devices('GPU') 
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
 
 # matplotlib.rcParams['animation.ffmpeg_path'] = r'C:\\Users\\Arjan\\Desktop\\ffmpeg\\bin\\ffmpeg.exe'
 
@@ -114,18 +121,19 @@ argPeri_s = 0       # Argument of periapsis
 T_s = 0             # True anomaly at epoch
 n_obs = 7           # number of observations
 t_obs = 1           # Days between observations
-n_asteroids = 10    # number of asteroids to generate
+n_asteroids = 10000 # number of asteroids to generate
 
-results = np.array([])
+results = np.array([-1, 0, 0, 0, 0, 0])
 
 for n in range(n_asteroids):
     random.seed(n)
     asteroid = gen_asteroid()
-    print()
-    print("------------------------------")
-    print(f"Asteroid {n}")
-    print("------------------------------")
-    print_asteroid(asteroid)
+    if n % 1000 == 0:
+        print()
+        print("------------------------------")
+        print(f"Asteroid {n}")
+        print("------------------------------")
+        print_asteroid(asteroid)
     a_t = asteroid[0]
     e_t = asteroid[1]
     i_t = asteroid[2]/180*pi
@@ -163,8 +171,97 @@ for n in range(n_asteroids):
         z_t = pos_t[2][0]
         
         obs = observe(x_s, y_s, z_s, x_t, y_t, z_t, H_t)
-        res = np.array([n, t, MOID, obs], dtype=object)
-        results = np.append(results, res)
+        res = np.array([n, t, MOID, *obs])
+        results = np.vstack((results, res))
+results = results[1:]
+### Saving and readying
+test_split = 0.1
+val_split = 0.1
+
+n_test = int(test_split * n_asteroids)
+n_val = int(val_split * n_asteroids)
+n_data = int((1-test_split-val_split) * n_asteroids)
+
+columns = []
+for n in range(n_obs):
+    columns.append(f'R_a_{n}')
+    columns.append(f'Dec_{n}')
+    columns.append(f'Mag_{n}')
+columns.append('MOID')
+
+df_data = pd.DataFrame(columns=columns)
+df_test = pd.DataFrame(columns=columns)
+df_val = pd.DataFrame(columns=columns)
+
+for i in range(0, n_test):
+    row = {}
+    offset = i * n_obs
+    for n in range(n_obs):
+        assert results[offset + n][1] == n
+        row[f'R_a_{n}'] = results[offset + n][3]
+        row[f'Dec_{n}'] = results[offset + n][4]
+        row[f'Mag_{n}'] = results[offset + n][5]
+    row['MOID'] = results[offset][2]
+    df_test = df_test.append(row, ignore_index = True)
+    
+
+for i in range(n_test, n_test + n_val):
+    row = {}
+    offset = i * n_obs
+    for n in range(n_obs):
+        assert results[offset + n][1] == n
+        row[f'R_a_{n}'] = results[offset + n][3]
+        row[f'Dec_{n}'] = results[offset + n][4]
+        row[f'Mag_{n}'] = results[offset + n][5]
+    row['MOID'] = results[offset][2]
+    df_val = df_val.append(row, ignore_index = True)
+    
+
+for i in range(n_test + n_val, n_test + n_val + n_data):
+    row = {}
+    offset = i * n_obs
+    for n in range(n_obs):
+        assert results[offset + n][1] == n
+        row[f'R_a_{n}'] = results[offset + n][3]
+        row[f'Dec_{n}'] = results[offset + n][4]
+        row[f'Mag_{n}'] = results[offset + n][5]
+    row['MOID'] = results[offset][2]
+    df_data = df_data.append(row, ignore_index = True)
+
+
+y_test = df_test.pop('MOID')
+x_test = df_test
+y_val = df_val.pop('MOID')
+x_val = df_val
+y_train = df_data.pop('MOID')
+x_train = df_data
+
+model = keras.Sequential(
+    [
+     layers.Dense(len(x_train.columns), activation='sigmoid'),
+     layers.Dense(256, activation='relu'),
+     layers.Dense(256, activation='relu'),
+     layers.Dense(256, activation='relu'),
+     layers.Dense(128, activation='relu'),
+     layers.Dense(64, activation='relu'),
+     layers.Dense(1, activation='relu'),
+    ]
+)
+
+model.compile(
+    optimizer=keras.optimizers.Adam(lr=1e-7),
+    loss='mse'
+    )
+
+model.fit(
+    x_train,
+    y_train,
+    batch_size=32,
+    epochs=512,
+    validation_data=(x_val, y_val)
+    )
+
+
 
 ### Animation stuff ###
 # # Parameters of the target
