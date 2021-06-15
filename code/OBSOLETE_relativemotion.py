@@ -113,13 +113,13 @@ def observe(x_s, y_s, z_s, x_t, y_t, z_t, H_t):
 mu_sun = 1.327124E11 / (150_000_000**3) * (86_400**2)   # AU^3 / day^2
 
 # Parameters of the spacecraft
-a_s = 1             # Semi-major axis
+a_s = 0.75             # Semi-major axis
 e_s = 0             # Eccentricity
 i_s = 0             # Inclination
 raan_s = 0          # Right ascencion of the ascending node
 argPeri_s = 0       # Argument of periapsis
 T_s = 0             # True anomaly at epoch
-n_obs = 7           # number of observations
+n_obs = 21          # number of observations
 t_obs = 1           # Days between observations
 n_asteroids = 10000 # number of asteroids to generate
 
@@ -228,159 +228,167 @@ for i in range(n_test + n_val, n_test + n_val + n_data):
     row['MOID'] = results[offset][2]
     df_data = df_data.append(row, ignore_index = True)
 
-
-y_test = df_test.pop('MOID')
-x_test = df_test
-y_val = df_val.pop('MOID')
-x_val = df_val
-y_train = df_data.pop('MOID')
-x_train = df_data
-
-model = keras.Sequential(
-    [
-     layers.Dense(len(x_train.columns), activation='sigmoid'),
-     layers.Dense(256, activation='relu'),
-     layers.Dense(256, activation='relu'),
-     layers.Dense(256, activation='relu'),
-     layers.Dense(128, activation='relu'),
-     layers.Dense(64, activation='relu'),
-     layers.Dense(1, activation='relu'),
-    ]
-)
-
-model.compile(
-    optimizer=keras.optimizers.Adam(lr=1e-7),
-    loss='mse'
+df_test.to_csv('data_test.csv')
+df_val.to_csv('data_val.csv')
+df_data.to_csv('data_train.csv')
+if False:
+    y_test = df_test.pop('MOID')
+    x_test = df_test
+    y_val = df_val.pop('MOID')
+    x_val = df_val
+    y_train = df_data.pop('MOID')
+    x_train = df_data
+    
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2,
+                                  patience=5, min_lr=1e-7)
+    
+    model = keras.Sequential(
+        [
+         layers.Dense(len(x_train.columns), activation='sigmoid'),
+         layers.Dense(512, activation='relu'),
+         layers.Dense(512, activation='relu'),
+         layers.Dense(512, activation='relu'),
+         layers.Dense(512, activation='relu'),
+         layers.Dense(256, activation='relu'),
+         layers.Dense(128, activation='relu'),
+         layers.Dense(1, activation='relu'),
+        ]
     )
-
-model.fit(
-    x_train,
-    y_train,
-    batch_size=32,
-    epochs=512,
-    validation_data=(x_val, y_val)
-    )
-
-
-
-### Animation stuff ###
-# # Parameters of the target
-# a_t = 1.2             # Semi-major axis
-# e_t = 0.439             # Eccentricity
-# i_t = 9.06/180*pi             # Inclination
-# raan_t = 112.95/180*pi          # Right ascencion of the ascending node
-# argPeri_t = 42.25/180*pi       # Argument of periapsis
-# T_t = 154.74/80*pi             # True anomaly at epoch
-# H_t = 20            # Absolute magnitude
-
-# x_s_arr = []
-# y_s_arr = []
-# z_s_arr = []
-
-# x_t_arr = []
-# y_t_arr = []
-# z_t_arr = []
-
-# r_a_arr = []
-# dec_arr = []
-# mag_arr = []
-
-# for i in range(0, 6000):
-#     t_s = i + T_s
-#     t_t = i + T_t
-#     M_s = sqrt(mu_sun / a_s**3)*t_s
-#     M_t = sqrt(mu_sun / a_t**3)*t_t
     
-#     theta_s = theta_solve(e_s, M_s)
-#     pos_s = pos_heliocentric(a_s, e_s, i_s, theta_s, raan_s, argPeri_s)
-#     theta_t = theta_solve(e_t, M_t)
-#     pos_t = pos_heliocentric(a_t, e_t, i_t, theta_t, raan_t, argPeri_t)
+    model.compile(
+        optimizer=keras.optimizers.Adam(lr=1e-3),
+        loss='mse'
+        )
     
-#     x_s = pos_s[0][0]
-#     y_s = pos_s[1][0]
-#     z_s = pos_s[2][0]
+    model.fit(
+        x_train,
+        y_train,
+        batch_size=32,
+        epochs=512,
+        validation_data=(x_val, y_val),
+        callbacks=[reduce_lr]
+        )
     
-#     x_t = pos_t[0][0]
-#     y_t = pos_t[1][0]
-#     z_t = pos_t[2][0]
+    model.save('model_3')
     
-#     x_rel = x_t - x_s
-#     y_rel = y_t - y_s
-#     z_rel = z_t - z_s
+    ### Animation stuff ###
+    # # Parameters of the target
+    # a_t = 1.2             # Semi-major axis
+    # e_t = 0.439             # Eccentricity
+    # i_t = 9.06/180*pi             # Inclination
+    # raan_t = 112.95/180*pi          # Right ascencion of the ascending node
+    # argPeri_t = 42.25/180*pi       # Argument of periapsis
+    # T_t = 154.74/80*pi             # True anomaly at epoch
+    # H_t = 20            # Absolute magnitude
     
-#     r_a = atan2(y_rel, x_rel)
-#     dec = atan(z_rel/sqrt(x_rel**2 + y_rel**2))
-#     mag = find_mag(x_s, y_s, z_s, x_t, y_t, z_t, H_t)
-
-#     x_s_arr.append(x_s)
-#     y_s_arr.append(y_s)
-#     z_s_arr.append(z_s)
+    # x_s_arr = []
+    # y_s_arr = []
+    # z_s_arr = []
     
-#     x_t_arr.append(x_t)
-#     y_t_arr.append(y_t)
-#     z_t_arr.append(z_t)
+    # x_t_arr = []
+    # y_t_arr = []
+    # z_t_arr = []
     
-#     r_a_arr.append(r_a)
-#     dec_arr.append(dec)
-#     mag_arr.append(mag)
+    # r_a_arr = []
+    # dec_arr = []
+    # mag_arr = []
     
+    # for i in range(0, 6000):
+    #     t_s = i + T_s
+    #     t_t = i + T_t
+    #     M_s = sqrt(mu_sun / a_s**3)*t_s
+    #     M_t = sqrt(mu_sun / a_t**3)*t_t
+        
+    #     theta_s = theta_solve(e_s, M_s)
+    #     pos_s = pos_heliocentric(a_s, e_s, i_s, theta_s, raan_s, argPeri_s)
+    #     theta_t = theta_solve(e_t, M_t)
+    #     pos_t = pos_heliocentric(a_t, e_t, i_t, theta_t, raan_t, argPeri_t)
+        
+    #     x_s = pos_s[0][0]
+    #     y_s = pos_s[1][0]
+    #     z_s = pos_s[2][0]
+        
+    #     x_t = pos_t[0][0]
+    #     y_t = pos_t[1][0]
+    #     z_t = pos_t[2][0]
+        
+    #     x_rel = x_t - x_s
+    #     y_rel = y_t - y_s
+    #     z_rel = z_t - z_s
+        
+    #     r_a = atan2(y_rel, x_rel)
+    #     dec = atan(z_rel/sqrt(x_rel**2 + y_rel**2))
+    #     mag = find_mag(x_s, y_s, z_s, x_t, y_t, z_t, H_t)
     
-# gs = gridspec.GridSpec(3,2)
-# fig = plt.figure(figsize=(16,9))
-# ax_orb = plt.subplot(gs[:, 0], projection='3d')
-# ax_orb.set_xlim3d(-1.2, 1.2)
-# ax_orb.set_ylim3d(-1.2, 1.2)
-# ax_orb.set_zlim3d(-1, 1)
-# orb_line_s = ax_orb.plot(0,0,0)
-# orb_dots_s = ax_orb.plot(0,0,0)
-# orb_line_t = ax_orb.plot(0,0,0)
-# orb_dots_t = ax_orb.plot(0,0,0)
-# orb_rel = ax_orb.plot(0,0,0)
-
-# ax_r_a = plt.subplot(gs[0, 1])
-# r_a_plt = ax_r_a.plot(0)
-# ax_r_a.set_ylabel('Right Ascension')
-
-# ax_dec = plt.subplot(gs[1, 1])
-# dec_plt = ax_dec.plot(0)
-# ax_dec.set_ylabel('Declination')
-
-# ax_mag = plt.subplot(gs[2, 1]) 
-# mag_plt = ax_mag.plot(0)
-# ax_mag.set_ylabel('Apparent Magnitude')
-
-# def animate(i):
-#     global orb_line_s, orb_dots_s, orb_line_t, orb_dots_t,\
-#         orb_rel, r_a_plt, dec_plt, mag_plt
-#     i = i + 365
-#     orb_line_s.pop(0).remove()
-#     orb_dots_s.pop(0).remove()
-#     orb_line_t.pop(0).remove()
-#     orb_dots_t.pop(0).remove()
-#     orb_rel.pop(0).remove()
-#     r_a_plt.pop(0).remove()
-#     dec_plt.pop(0).remove()
-#     mag_plt.pop(0).remove()
-
-#     orb_line_s = ax_orb.plot(x_s_arr[0:500], y_s_arr[0:500], z_s_arr[0:500], c='green')
-#     orb_dots_s = ax_orb.plot(x_s_arr[i], y_s_arr[i], z_s_arr[i], 'go')
-#     orb_line_t = ax_orb.plot(x_t_arr[0:500], y_t_arr[0:500], z_t_arr[0:500], c='blue')
-#     orb_dots_t = ax_orb.plot(x_t_arr[i], y_t_arr[i], z_t_arr[i], 'bo')
-#     orb_rel = ax_orb.plot([x_s_arr[i], x_t_arr[i]],
-#                           [y_s_arr[i], y_t_arr[i]],
-#                           [z_s_arr[i], z_t_arr[i]],
-#                           'k--')
-#     ax_orb.view_init(15, (i/10)%360)
-#     r_a_plt = ax_r_a.plot(r_a_arr[i-365:i], c='blue')
-#     dec_plt = ax_dec.plot(dec_arr[i-365:i], c='blue')
-#     mag_plt = ax_mag.plot(mag_arr[i-365:i], c='blue')
+    #     x_s_arr.append(x_s)
+    #     y_s_arr.append(y_s)
+    #     z_s_arr.append(z_s)
+        
+    #     x_t_arr.append(x_t)
+    #     y_t_arr.append(y_t)
+    #     z_t_arr.append(z_t)
+        
+    #     r_a_arr.append(r_a)
+    #     dec_arr.append(dec)
+    #     mag_arr.append(mag)
+        
+        
+    # gs = gridspec.GridSpec(3,2)
+    # fig = plt.figure(figsize=(16,9))
+    # ax_orb = plt.subplot(gs[:, 0], projection='3d')
+    # ax_orb.set_xlim3d(-1.2, 1.2)
+    # ax_orb.set_ylim3d(-1.2, 1.2)
+    # ax_orb.set_zlim3d(-1, 1)
+    # orb_line_s = ax_orb.plot(0,0,0)
+    # orb_dots_s = ax_orb.plot(0,0,0)
+    # orb_line_t = ax_orb.plot(0,0,0)
+    # orb_dots_t = ax_orb.plot(0,0,0)
+    # orb_rel = ax_orb.plot(0,0,0)
     
-#     ax_orb.plot(0, 0, 'yo') # Add sun
+    # ax_r_a = plt.subplot(gs[0, 1])
+    # r_a_plt = ax_r_a.plot(0)
+    # ax_r_a.set_ylabel('Right Ascension')
     
-# ani = FuncAnimation(fig, animate, interval=10, frames=3650)
-# # print("start")
-# # start = datetime.datetime.now()
-# # f = r"c://Users/Arjan/Desktop/thesis/thesis/relativemotionblue.mp4"
-# # writergif = FFMpegWriter(fps=30)
-# # ani.save(f, writer=writergif)
-# # print(datetime.datetime.now() - start)
+    # ax_dec = plt.subplot(gs[1, 1])
+    # dec_plt = ax_dec.plot(0)
+    # ax_dec.set_ylabel('Declination')
+    
+    # ax_mag = plt.subplot(gs[2, 1]) 
+    # mag_plt = ax_mag.plot(0)
+    # ax_mag.set_ylabel('Apparent Magnitude')
+    
+    # def animate(i):
+    #     global orb_line_s, orb_dots_s, orb_line_t, orb_dots_t,\
+    #         orb_rel, r_a_plt, dec_plt, mag_plt
+    #     i = i + 365
+    #     orb_line_s.pop(0).remove()
+    #     orb_dots_s.pop(0).remove()
+    #     orb_line_t.pop(0).remove()
+    #     orb_dots_t.pop(0).remove()
+    #     orb_rel.pop(0).remove()
+    #     r_a_plt.pop(0).remove()
+    #     dec_plt.pop(0).remove()
+    #     mag_plt.pop(0).remove()
+    
+    #     orb_line_s = ax_orb.plot(x_s_arr[0:500], y_s_arr[0:500], z_s_arr[0:500], c='green')
+    #     orb_dots_s = ax_orb.plot(x_s_arr[i], y_s_arr[i], z_s_arr[i], 'go')
+    #     orb_line_t = ax_orb.plot(x_t_arr[0:500], y_t_arr[0:500], z_t_arr[0:500], c='blue')
+    #     orb_dots_t = ax_orb.plot(x_t_arr[i], y_t_arr[i], z_t_arr[i], 'bo')
+    #     orb_rel = ax_orb.plot([x_s_arr[i], x_t_arr[i]],
+    #                           [y_s_arr[i], y_t_arr[i]],
+    #                           [z_s_arr[i], z_t_arr[i]],
+    #                           'k--')
+    #     ax_orb.view_init(15, (i/10)%360)
+    #     r_a_plt = ax_r_a.plot(r_a_arr[i-365:i], c='blue')
+    #     dec_plt = ax_dec.plot(dec_arr[i-365:i], c='blue')
+    #     mag_plt = ax_mag.plot(mag_arr[i-365:i], c='blue')
+        
+    #     ax_orb.plot(0, 0, 'yo') # Add sun
+        
+    # ani = FuncAnimation(fig, animate, interval=10, frames=3650)
+    # # print("start")
+    # # start = datetime.datetime.now()
+    # # f = r"c://Users/Arjan/Desktop/thesis/thesis/relativemotionblue.mp4"
+    # # writergif = FFMpegWriter(fps=30)
+    # # ani.save(f, writer=writergif)
+    # # print(datetime.datetime.now() - start)
