@@ -1,0 +1,5 @@
+Notes observation:
+- 1 S10 = 1 mag 10 star per square degree. Thus, with H_sun = -26.74, we find:
+1 S10 = (180/pi)^2 * 100^(36.74/-5) = 6.62E-12 solar flux per sr.
+- Refs: Stokes et al, Light of the night sky book, 1997 reference.
+- Linear: https://www.wikihow.com/Do-a-Double-Linear-Interpolation

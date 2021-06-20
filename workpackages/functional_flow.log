@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2021.4.29)  15 JUN 2021 22:11
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2021.4.29)  15 JUN 2021 22:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -343,4 +343,91 @@ LaTeX Font Info:    ... okay on input line 12.
 * \mag=1000
 * \@twocolumnfalse
 * \@twosidefalse
-* \@mparswi
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+Package hyperref Info: Link coloring OFF on input line 12.
+(c:/texlive/2021/texmf-dist/tex/latex/hyperref/nameref.sty
+Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
+
+(c:/texlive/2021/texmf-dist/tex/latex/refcount/refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(c:/texlive/2021/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+)
+\c@section@level=\count283
+)
+LaTeX Info: Redefining \ref on input line 12.
+LaTeX Info: Redefining \pageref on input line 12.
+LaTeX Info: Redefining \nameref on input line 12.
+
+(./functional_flow.out) (./functional_flow.out)
+\@outlinefile=\write3
+\openout3 = `functional_flow.out'.
+
+File: functional_flow.png Graphic file (type bmp)
+<functional_flow.png>
+ [1
+
+]
+*geometry* verbose mode - [ newgeometry ] result:
+* driver: xetex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(86.72377pt, 424.06033pt, 86.72377pt)
+* v-part:(T,H,B)=(108.405pt, 649.91808pt, 86.72377pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=424.06033pt
+* \textheight=649.91808pt
+* \oddsidemargin=14.45378pt
+* \evensidemargin=14.45378pt
+* \topmargin=-0.86499pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=10.0pt
+* \footskip=30.0pt
+* \marginparwidth=57.0pt
+* \marginparsep=11.0pt
+* \columnsep=10.0pt
+* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+ [2
+
+] [3] [4]
+Underfull \hbox (badness 10000) in paragraph at lines 52--53
+
+ []
+
+[5] (./functional_flow.aux)
+
+Package rerunfilecheck Warning: File `functional_flow.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `functional_flow.out':
+(rerunfilecheck)             Before: F880E248B4643155515EA183CF2CB140;318
+(rerunfilecheck)             After:  4F4C85939ED108A522C6736AB8635B56;2448.
+ ) 
+Here is how much of TeX's memory you used:
+ 8673 strings out of 476919
+ 128058 string characters out of 5825424
+ 456473 words of memory out of 5000000
+ 28560 multiletter control sequences out of 15000+600000
+ 407742 words of font info for 53 fonts, out of 8000000 for 9000
+ 1348 hyphenation exceptions out of 8191
+ 71i,8n,77p,1937b,328s stack positions out of 5000i,500n,10000p,200000b,80000s
+
+Output written on functional_flow.pdf (5 pages).
