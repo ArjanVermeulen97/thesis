@@ -12,31 +12,14 @@ import matplotlib.pyplot as plt
 
 ### INPUTS ###
 aperture = 1                # m
-pixelAngle = 7.62e-11       # sr (corr 5 deg x 5 deg at 100MP)
+pixelAngle = 0.1            # sr
 quantumEff = 0.9            # -
 transmittance = 0.99        # -
-straddleFac = 1             # - (compensated by trailing loss eq)
+straddleFac = 1             # -
 solarRadiance = 5.79e10     # W/sr??
-solarFlux = 1350            # W/m2
 integrationTime = 10        # s
-readNoise = 400             # J
-darkNoise = 1000            # J
-coulomb = 1.6E-19           # J/e-
-asteroidRange = 0.3           # AU (BEUNFACTOR)
-asteroidSize = 30           # m
-l_solar = 0                 # solar latitude
-
-def R_2(a):
-    R = np.array([[cos(a), 0, 1*sin(a)],
-                  [0, 1, 0],
-                  [-1*sin(a), 0, cos(a)]])
-    return R
-
-def R_3(a):
-    R = np.array([[cos(a), 1*sin(a), 0],
-                  [-1*sin(a), cos(a), 0],
-                  [0, 0, 1]])
-    return R
+readNoise = 0.1             # e-
+poissonNoiseDark = 0.1      # e-
 
 
 def trailing_loss(pixelWidth, vTransverse, time, distance):
@@ -107,11 +90,7 @@ def phase_mag(t_mag, t_x, t_y, t_z, s_x, s_y, s_z):
     
     if elongation / pi * 180 < 60:
         # Per Stokes at al (2003)
-        try:
-            V = t_mag + 5*log10(t_abs*r_abs) + 5.03 - 10.373*log10(pi - phase)
-        except ValueError:
-            # 0 degrees, backlit by sun
-            V = 1000
+        V = t_mag + 5*log10(t_abs*r_abs) + 5.03 - 10.373*log10(pi - phase)
     else:
         # Per Stokes er al (2003)
         phi_1 = exp(-3.33*(tan(phase/2))**0.63)
@@ -123,11 +102,14 @@ def phase_mag(t_mag, t_x, t_y, t_z, s_x, s_y, s_z):
 zodiacGegenschein = pd.read_csv('zodiacgegenschein.csv', index_col=0, header=0)
 starBackground = pd.read_csv('starbackground.csv', index_col=0, header=0)
 
-SNR = np.zeros((181, 361))
+background = np.zeros((181, 361))
+background_ZGS = np.zeros((181, 361))
+background_SBG = np.zeros((181, 361))
+
+l_solar = 0
 
 for i in range(0, 361):
     for j in range(0, 181):
-        # Fetch coordinates
         l_ecl_g = i
         if l_ecl_g > 180:
             l_ecl_g = 360 - l_ecl_g
@@ -138,18 +120,6 @@ for i in range(0, 361):
             l_ecl = 360 + l_ecl
         if l_ecl > 180:
             l_ecl = 360 - l_ecl
-            
-        # Get asteroid position and magnitude
-        vec = np.array([-asteroidRange, 0, 0])
-        pos = R_3(b_ecl/180*pi)@R_2(l_ecl/180*pi)@vec
-        x_t = pos[0] + 1
-        y_t = pos[1]
-        z_t = pos[2]
-        mag_t = -5*log10(asteroidSize * sqrt(0.15) / 1.329E6)
-        
-        V_t = phase_mag(mag_t, x_t, y_t, z_t, 1, 0, 0)
-        fluxTarget = 100**((V_t+26.74)/-5)*solarFlux
-        
         
         # Interpolate all table values for Zodiacal light and Gegenschein
         # Get annoyed by string indices....
@@ -232,18 +202,26 @@ for i in range(0, 361):
                 fac_l_2*(fac_b_1*SBG_1_1 + fac_b_2*SBG_1_2)
         
             
-        signalBG = 6.62E-12 * (ZGS + SBG) * pixelAngle * solarFlux / coulomb
-        signalTarget = fluxTarget * aperture * pixelAngle * quantumEff *\
-            transmittance*integrationTime / coulomb
-        ratio = (signalTarget / pixelAngle * straddleFac) /\
-              sqrt(readNoise + darkNoise + signalBG + signalTarget)
-        SNR[j, (i+180)%360] = ratio
-
+        signalBG = ZGS + SBG
+        background[j, (i+180)%360] = signalBG
+        background_ZGS[j, (i+180)%360] = ZGS
+        background_SBG[j, (i+180)%360] = SBG
+        
 plt.figure(figsize=(10,5))
-plt.title(f"Signal-to-noise ratio for {asteroidSize}m asteroid at {asteroidRange}AU from spacecraft.")
-plt.imshow(SNR, cmap='hot', extent=[-180, 180, -90, 90])
+plt.imshow(background, cmap='gray', vmin=0, vmax=2000, extent=[-180, 180, -90, 90])
+plt.colorbar()
+plt.title('S10(vis) brightness of combined background')
 plt.xlabel('lambda [deg]')
 plt.ylabel('beta [deg]')
+plt.figure(figsize=(10,5))
+plt.imshow(background_ZGS, cmap='gray', vmin=0, vmax=2000, extent=[-180, 180, -90, 90])
 plt.colorbar()
-plt.contour(SNR, 16, cmap='plasma', extent=[-180, 180, 90, -90])
-
+plt.title('S10(vis) brightness of Sun, solar corona, zodiacal light and gegenschein')
+plt.xlabel('lambda [deg]')
+plt.ylabel('beta [deg]')
+plt.figure(figsize=(10,5))
+plt.imshow(background_SBG, cmap='gray', vmin=0, vmax=2000, extent=[-180, 180, -90, 90])
+plt.colorbar()
+plt.title('S10(vis) brightness of diffuse starlight and milky way')
+plt.xlabel('lambda [deg]')
+plt.ylabel('beta [deg]')
