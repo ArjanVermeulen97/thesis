@@ -23,7 +23,7 @@ readNoise = 400             # J
 darkNoise = 1000            # J
 coulomb = 1.6E-19           # J/e-
 asteroidRange = 0.3           # AU (BEUNFACTOR)
-asteroidSize = 30           # m
+asteroidSize = 50           # m
 l_solar = 0                 # solar latitude
 
 def R_2(a):

@@ -10,6 +10,7 @@ import numpy as np
 from numpy.random import poisson
 import pandas as pd
 import matplotlib.pyplot as plt
+np.random.seed(0)
 
 ### INPUTS ###
 aperture = 1                # m
@@ -125,6 +126,7 @@ zodiacGegenschein = pd.read_csv('zodiacgegenschein.csv', index_col=0, header=0)
 starBackground = pd.read_csv('starbackground.csv', index_col=0, header=0)
 
 n = 0
+n_arr = [1, 5, 9, 13, 17, 2, 6, 10, 14, 18, 3, 7, 11, 15, 19, 4, 8, 12, 16, 20]
 plt.figure(figsize=(20, 16))
 
 for i in range(0, 360, 90):
@@ -254,10 +256,11 @@ for i in range(0, 360, 90):
                                         2*sigma**2)) + \
                     poisson(signalBG) + poisson(readNoise) + poisson(darkNoise)
 
+        
+        plt.subplot(5, 4, n_arr[n])
         n = n+1
-        plt.subplot(4, 5, n)
-        plt.imshow(image, cmap='gray', vmin=0, vmax=5000)
-        plt.title(f"l: {l_ecl}, b: {b_ecl}, SNR: {ratio:.2}")
+        plt.imshow(image, cmap='gray', vmin=1000, vmax=4500)
+        plt.title(f"l: {l_ecl}, b: {b_ecl}, SNR: {ratio:.2}, coords:({offset_y}, {offset_x})")
         
 plt.tight_layout()
 

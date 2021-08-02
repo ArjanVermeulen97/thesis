@@ -1,0 +1,254 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{mathtools}
+
+%opening
+\title{WP Observation Simulation}
+\author{J. G. P. Vermeulen}
+
+\begin{document}
+
+\maketitle
+
+\section{Vis}
+
+\section{IR}
+Space-based thermal infrared studies of asteroids (Mainzer et al 2015 in Asteroids IV)
+
+From energy balance:
+\begin{equation}
+ L_e = L_a
+\end{equation}
+Emitted radiation is absorbed radiation. Then, from albedo:
+\begin{equation}
+ A_pS = L_r + L_e
+\end{equation}
+And
+\begin{equation}
+ \frac{L_r}{L_e} = \frac{A}{1-A}
+\end{equation}
+With:
+\begin{itemize}
+ \item $A_p$: Projected area
+ \item $S$: Solar flux
+ \item $L_r$: Reflected radiation
+ \item $L_e$: Emitted radiation
+\end{itemize}
+Then there's a mess for the thermal model:
+\begin{equation}
+ L_e = \epsilon \eta \sigma R^2 \int _{-\pi}{\pi} \int _{-\pi/2}{\pi/2} T^4(\theta,\phi) \cos (\phi) d \phi d \theta
+\end{equation}
+with longitude $\theta$ and latitude $\phi$ measured from the subsolar point. Then, with angular distance from the subsolar point $\zeta$:
+\begin{equation}
+ T(\theta, \phi) = \begin{dcases}T_{ss} \cos ^{1/4} \zeta~\mathrm{if}~\zeta < \pi/2 \\ 0~~~~~~~~~~~~~~\mathrm{if}~ \zeta \leq \pi/2 \end{dcases} 
+\end{equation}
+With temperature at the subsolar point:
+\begin{equation}
+ T_{ss} = \left(\frac{S(1-A)}{\eta \epsilon \sigma} \right)^{1/4}
+\end{equation}
+Here, we have more parameters:
+\begin{itemize}
+ \item $\eta$: beaming parameter = 0.756
+ \item $\epsilon$: emissivity at wavelength 
+ \item $\sigma$: Stefan-Boltzmann constant
+ \item $R$ Object radius
+\end{itemize}
+From The COBE Diffuse Infrared Background Experiment Search for the Cosmic Infrared Background. II. Model of the Interplanetary Dust Cloud (Kelsall et al 1997):\\
+We can approximate the infrared zodiacal brightness through this model:
+\begin{equation}
+Z_{\lambda}(p, t) = \Sigma _c \int n_c(X, Y, Z)[A_{c, \lambda}F_{\lambda}^{\odot}\Phi_{\lambda}(\Theta) + (1-A_{c,\lambda})E_{c,\lambda}B_{\lambda}(T)K_{\lambda}(T)]ds
+\end{equation}
+The line of sight integral for each pixel p at time t of scattered infrared light and thermal emissions, summed over the components $c$. With:
+\begin{itemize}
+ \item $n_c(X, Y, Z)$: the three-dimensional density for each of the components.
+ \item $A_{c,\lambda}$: Albedo for component $c$ at wavelength $\lambda$.
+ \item $F_{\lambda}^{\odot}$: Solar flux.
+ \item $\Phi_{\lambda}(\Theta)$: Phase function at scattering angle $\Theta$
+ \item $E_{c, \lambda}$: An important parameter, an emmissivity modification factor measuring deviation from blackbody.
+ \item $B_{\lambda}(T)$: Blackbody radiance function
+ \item $T(R)$: Temperature
+ \item $K_{\lambda}(T)$: Color correction factor, can be ignored.
+\end{itemize}
+First off, albedo is assumed zero at thermal infrared wavelengths, and the color correction factor is unneccessary for the level of required detail. Therefore, the formula reduces to:
+\begin{equation}
+ Z_{\lambda}(p, T) = \Sigma_c \int n_c(X, Y, Z)E_{c,\lambda}B_{\lambda}(T)ds
+\end{equation}
+Blackbody radiance is given by Planck's law:
+\begin{equation}
+ B_{\lambda} = \frac{2hc^2/\lambda^5}{e^{\frac{hc}{\lambda k_B T}} - 1}
+\end{equation}
+With:
+\begin{itemize}
+ \item Planck constant $h = 6.626\cdot 10^{-34}~\mathrm{J\cdot Hz^{-1}}$
+ \item Boltzmann constant $k_B = 1.380\cdot 10^{-23}~\mathrm{J\cdot K^{-1}}$
+ \item Lightspeed $c = 299792458~\mathrm{m/s}$
+\end{itemize}
+We can model the temperature according to grey body thermal equilibrium:
+\begin{equation}
+ T(R) = T_0 R^{-\delta}
+\end{equation}
+With $\delta = 0.467$.\\
+
+Then, we have the following coordinate transformations for a spacecraft in the elliptical plane:
+\begin{align}
+ X &= R_{S/C} \cos \lambda_{S/C} + s \cos \beta \cos \lambda \\
+ Y &= R_{S/C} \sin \lambda_{S/C} + s \cos \beta \sin \lambda \\
+ Z &= s \sin \beta\\
+ R &= \sqrt{X^2 + Y^2 + Z^2}
+\end{align}
+With $R_{S/C}$ the heliocentric radius of the spacecraft and $\lambda_{S/C}$ the heliocentric longitude of the spacecraft. Then with longitude $\lambda$ and latitude $\beta$. Integration is suggested to be performed from 0 to 5.2 AU from the Sun (the orbit of Jupiter). We can find an approriate end value of $s$ as follows (WolframAlpha, exact solution):
+\begin{equation}
+\begin{aligned}
+ s = \frac{1}{5}(-\frac{1}{10}\sqrt((50R_{S/C}\cos \lambda_{S/C}\cos\beta\cos\lambda + \\50R_{S/C}\sin\lambda_{S/C}\cos\beta\sin\lambda)^2 - 100(25R_{S/C}^2-676))\\ - 5R_{S/C}\cos\lambda_{S/C}\cos\beta\cos\lambda-5R_{S/C}\sin\lambda_{S/C}\cos\beta\sin\lambda)
+\end{aligned}
+\end{equation}
+Lastly, we have the densities of the smooth dust cloud, the bands, and the circumsolar ring. The Earth-trailing blob is neglected.\\
+
+\textbf{Smooth cloud:}\\
+Firstly, the cloud is offset from the Sun:
+\begin{align}
+ X' &= X - X_0 \\
+ Y' &= Y - Y_0 \\
+ Z' &= Z - Z_0 \\
+ R_c &= \sqrt{X'^2 + Y'^2 + Z'^2}
+\end{align}
+Furthermore, the cloud is tilted:
+\begin{align}
+ Z_c = X' \sin \Omega \sin i - Y' \cos \Omega \sin i + Z' \cos i
+\end{align}
+Then, the cloud is modelled as a modified fan:
+\begin{equation}
+ n_c(X, Y, Z) = n_0 R_c^{-\alpha} e^{-\beta g \gamma}
+\end{equation}
+With:
+\begin{align}
+ \zeta &\equiv |Z_c / R_c | \\
+ g &= \begin{dcases}\zeta^2 / 2\mu~~~~~\forall~\zeta < \mu \\ \zeta - \mu/2~~~\forall~\zeta \leq \mu \end{dcases}
+\end{align}
+With $n_0, \alpha, \beta, \gamma, \mu$ as free parameters.\\
+
+\textbf{Dust bands:}\\
+The density for the rings is given by:
+\begin{equation}
+\begin{aligned}
+ n_{Bi}(X, Y, Z) = \frac{3n_{3B1}}{R}\mathrm{exp}\left(-\left(\frac{\zeta_{Bi}}{\delta_{\zeta Bi}}\right)^6\right)\left(\nu_{Bi}+\left(\frac{\zeta_{Bi}}{\delta_{\zeta Bi}}\right)^{p_{Bi}}\right)\\ \cdot\left(1-\mathrm{exp}\left(-\left(\frac{R}{\delta_{RBi}}\right)^{20}\right)\right)
+ \end{aligned}
+\end{equation}
+Where $n_{3Bi}$ is the density at 3 AU of band $i$, $\zeta_{Bi} \equiv |z_{Bi} / R_c |$, $\delta_{Rbi}$ is the inner cut-off distance of the band, and $\delta_{\zeta Bi}, \nu_{Bi}, p_{Bi}$ are shape parameters.
+
+\textbf{Solar ring:}\\
+The density for the solar ring is given by:
+\begin{equation}
+ n_r(X, Y, Z) = n_{SR} \mathrm{exp}\left(-\frac{R-R_{SR})^2}{2 \sigma_{rSR}^2} - \frac{|Z_R|}{\sigma_{zSR}}\right)
+\end{equation}
+Here, the trailing blob is neglected. The $\sigma$ values are scale lengths.
+
+\textbf{Parameters:}\\
+
+\begin{table}[htbp]
+\caption{Parameters of the Smooth Cloud}
+\begin{tabular}{lll}
+\hline
+\textbf{Parameter} & \textbf{Description}           & \textbf{Value} \\ \hline
+$T_0$                 & Temperature at 1 AU            & 286            \\
+$\delta$              & Temperature power-law exponent & 0.467          \\
+$n_0$ (AU$^{-1}$)          & Density at 1 AU                & 1.13E-07       \\
+$\alpha$              & Radial power-law exponent      & 1.34           \\
+$\beta$               & Vertical shape parameter       & 4.14           \\
+$\gamma$              & Vertical power-law exponent    & 0.942          \\
+$\mu$                 & Widening parameter             & 0.189          \\
+$i$ (deg)            & Inclination                    & 2.03           \\
+$\Omega$ (deg)        & Ascending node                 & 77.7           \\
+$X_0$ (AU)            & X offset from Sun              & 0.0119         \\
+$Y_0$ (AU)            & Y offset from Sun              & 0.00548        \\
+$Z_0$ (AU)            & Z offset from Sun              & -0.00215       \\
+$E_{4.9}$               & Emissivity at 4.9 micron       & 0.997          \\
+$E_{12}$                & Emissivity at 12 micron        & 0.958          \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Parameters of Dust Band 1}
+\begin{tabular}{lll}
+\hline
+\textbf{Parameter} & \textbf{Description}           & \textbf{Value} \\ \hline
+$T_0$                 & Temperature at 1 AU            & 286            \\
+$\delta$              & Temperature power-law exponent & 0.467          \\
+$n_{B1}$ (AU$^-1$)         & Density at 3 AU                & 5.59E-10       \\
+$\delta_{\zeta B1}$      & Shape parameter                & 8.78           \\
+$\nu_{B1}$              & Shape parameter                & 0.1            \\
+$p_{B1}$               & Shape parameter                & 4              \\
+$i_{B1}$ (deg)         & Inclination                    & 0.56           \\
+$\Omega_{B1}$ (deg)     & Ascending node                 & 80             \\
+$\delta_{RB1}$ (AU)    & Inner radial cutoff            & 1.5            \\
+$E_{4.9}$               & Emissivity at 4.9 micron       & 0.359          \\
+$E_{12}$                & Emissivity at 12 micron        & 1.01           \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Parameters of Dust Band 2}
+\begin{tabular}{lll}
+\hline
+\textbf{Parameter} & \textbf{Description}           & \textbf{Value} \\ \hline
+$T_0$                 & Temperature at 1 AU            & 286            \\
+$\delta$              & Temperature power-law exponent & 0.467          \\
+$n_{B2}$ (AU-1)         & Density at 3 AU                & 1.99E-09       \\
+$\delta_{\zeta B2}$      & Shape parameter                & 1.99           \\
+$\nu_{B2}$              & Shape parameter                & 0.9            \\
+$p_{B2}$               & Shape parameter                & 4              \\
+$i_{B2}$ (deg)         & Inclination                    & 1.2            \\
+$\Omega_{B1}$ (deg)     & Ascending node                 & 30.3           \\
+$\delta_{R B2}$ (AU)    & Inner radial cutoff            & 0.94           \\
+$E_{4.9}$               & Emissivity at 4.9 micron       & 0.359          \\
+$E_{12}$                & Emissivity at 12 micron        & 1.01           \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Parameters of Dust Band 3}
+\begin{tabular}{lll}
+\hline
+\textbf{Parameter} & \textbf{Description}           & \textbf{Value} \\ \hline
+$T_0$                 & Temperature at 1 AU            & 286            \\
+$\delta$              & Temperature power-law exponent & 0.467          \\
+$n_{B3}$ (AU$^{-1}$)         & Density at 3 AU                & 1.44E-10       \\
+$\delta_{\zeta B3}$      & Shape parameter                & 15             \\
+$\nu_{B3}$              & Shape parameter                & 0.05           \\
+$p_{B3}$               & Shape parameter                & 4              \\
+$i_{B3}$ (deg)         & Inclination                    & 0.8            \\
+$\Omega_{B3}$ (deg)     & Ascending node                 & 80             \\
+$\delta_{R B3}$ (AU)    & Inner radial cutoff            & 1.5            \\
+$E_{4.9}$               & Emissivity at 4.9 micron       & 0.359          \\
+$E_{12}$                & Emissivity at 12 micron        & 1.01           \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Parameters of the Solar Ring}
+\begin{tabular}{lll}
+\hline
+\textbf{Parameter} & \textbf{Description}           & \textbf{Value} \\ \hline
+$T_0$                 & Temperature at 1 AU            & 286            \\
+$\delta$              & Temperature power-law exponent & 0.467          \\
+$n_{SR}$ (AU-1)         & Density at 1 AU                & 1.83E-08       \\
+$R_{SR}$ (AU)           & Radius of peak density         & 1.03           \\
+$\sigma_{rSR}$          & Radial dispersion              & 0.025          \\
+$\sigma_{zSR}$ (AU)     & Vertical dispersion            & 0.054          \\
+$i_{SR}$ (deg)          & Inclination                    & 0.49           \\
+$\Omega_{SR}$           & Ascending node                 & 22.3           \\
+$E_{4.9}$               & Emissivity at 4.9 micron       & 1.06           \\
+$E_{12}$                & Emissivity at 12 micron        & 1.06           \\ \hline
+\end{tabular}
+\end{table}
+
+
+
+
+
+
+
+
+\end{document}
