@@ -246,8 +246,56 @@ $E_{12}$                & Emissivity at 12 micron        & 1.06           \\ \hl
 
 
 
+\subsection{Verification and validation}
+V\&V was performed through comparing the shapes of the plots, and taking select points indicated by the authors and comparing to the real values. Note that these values are very sensitive to input conditions, most notably the position of the Earth, which is only given as a day. Ephemeris was obtained from ssd.jpl.nasa.gov/horizons.cgi
 
+\begin{table}[]
+\begin{tabular}{lll|l|llllll}
+\hline
+$(\lambda, \beta)$ & \textbf{Date} & $\lambda_{\oplus}$ & \textbf{Comp.} & \textbf{R} 4.9 & \textbf{C} 4.9 & \textbf{Diff} & \textbf{R} 12 & \textbf{C} 12& \textbf{Diff} \\ \hline
+122, 0                   & 19-04-90    & 208.81           & Cloud       & 0.679            & 0.655             & -4\%          & 28.476          & 29.63            & 4\%           \\
+                         &               &                  & Bands         & 0.0141           & 0.0121            & -14\%         & 1.938           & 1.78             & -8\%          \\
+                         &               &                  & Ring         & 0.0164           & 0.0493            & 201\%         & 3.324           & 1.6              & -52\%         \\ \hline
+                         &               &                  & Total              & 0.808            & 0.716             & -11\%         & 33.875          & 33.011           & -3\%          \\ \hline
+137, 46                  & 09-05-90    & 228.25           & Cloud       & 0.449            & 0.492             & 10\%          & 14.669          & 17.208           & 17\%          \\
+                         &               &                  & Bands         & 0.00114          & 0.00102           & -11\%         & 0.0924          & 0.0868           & -6\%          \\
+                         &               &                  & Ring         & 0.0251           & 0.00871           & -65\%         & 0.735           & 0.266            & -64\%         \\ \hline
+                         &               &                  & Total              & 0.476            & 0.501             & 5\%           & 15.483          & 17.561           & 13\%          \\ \hline
+\end{tabular}
+\end{table}
 
+\section{Asteroid thermal model}
+Lets try that again. Firstly we have the Standard Thermal model (STM) from Lebovsky et al, 1986: A refined standard thermal model based on observations of ceres and pallas. This model assumes that the asteroid is a non-rotating sphere in full sunlight. Thus, we have a maximum at the subsolar point $T_{max}$, which is given by:
+\begin{equation}
+ T_{max} = \left[(1-A)S/(\eta \epsilon \sigma)\right]^{1/4}
+\end{equation}
+With bolometric bond albedo $A$, $S$ the incident solar flux, $\eta$ the beaming parameter, and $\sigma$ the stefan-boltzmann constant. Then, assuming there is no emmission on the nightside of the asteroid, thus the temperature distribution decreases to zero at the terminator, we have:
+\begin{equation}
+ T(\omega) = T_{max}\cos ^{1/4} \omega ~ ; ~ 0 \leq \omega \leq \pi/2
+\end{equation}
+Then, we have Mainzer et al in Space-Based Thermal Infrared Studies of Asteroids. They fit $\eta$ to multi-band observations and call it the Near Earth Asteroid Thermal Model. Furthermore, for Albedo, we have:
+\begin{equation}
+ A = p_v(0.29 + 0.684 G) 
+\end{equation}
+Where G is the slope parameter from Harris et al 1989, which ranges from -0.1 to 0.4, but most colder asteroids will show primarily emission and not reflection in the 6-10 micron bands. Furthermore, 
+
+Harris (2002) in Asteroids in the Thermal Infrared says we should use $\eta = 1.2$. This is because the effects of thermal intertia, spinrates, and the fact that we often see NEO's at high phase angle (thus showing the nightside, which is of course not completely cold), means it should be higher. For the STM, $\eta = 0.756$.
+
+After some more tricks, we find for the observed flux of the asteroid:
+\begin{equation}
+ F(\omega) = \eta \epsilon R^2 \int_{- \pi / 2}^{\pi / 2 - \omega} \int_{- \pi / 2}^{\pi / 2} \int _{6\mu m}^{10\mu m} B\left( \lambda, T(\theta, \phi)\right)\cos \phi d \lambda d \phi d \theta
+\end{equation}
+With:
+\begin{equation}
+ T = \begin{dcases}T_{max}\cos ^{1/4} \theta \cos ^{1/4} \phi; ~ \theta \leq \pi / 2 \\ 0; ~~~~~~~~~~~~~~~~~~~~~~~~~~~ \theta > \pi / 2 \end{dcases}
+\end{equation}
+In which we make the assumption that the asteroid is in the ecliptic plane, else we require a weird coordinate transform. First idea will be to integrate over:
+\begin{align}
+ \lambda &= [0.65, 0.75, 0.85, 0.95];~ \Delta \lambda = 0.1 \\
+ \theta &= [-3\pi/8, -1\pi/8, 1\pi/8, 3\pi/8];~ \Delta \theta = \pi/4 \\
+ \phi &= [-3\pi/8, -1\pi/8, 1\pi/8, 3\pi/8];~ \Delta \phi = \pi/4
+\end{align}
+Which is 64 calculations per step, a bit much, but else more assumptions will be needed.
 
 
 
