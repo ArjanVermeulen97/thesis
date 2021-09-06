@@ -1,102 +1,57 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jun 20 15:08:25 2021
+Created on Mon Sep  6 11:10:39 2021
 
 @author: Arjan
 """
 
-from math import sqrt, exp, tan, log10, pi, acos, asin, sin, cos
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
-### INPUTS ###
-aperture = 1                # m
-pixelAngle = 7.62e-11       # sr (corr 5 deg x 5 deg at 100MP)
-quantumEff = 0.9            # -
-transmittance = 0.99        # -
-straddleFac = 1             # - (compensated by trailing loss eq)
-solarRadiance = 5.79e10     # W/sr??
-solarFlux = 1350            # W/m2
-integrationTime = 10        # s
-readNoise = 400             # J
-darkNoise = 1000            # J
-coulomb = 1.6E-19           # J/e-
-asteroidRange = 0.3           # AU (BEUNFACTOR)
-asteroidSize = 30           # m
-l_solar = 0                 # solar latitude
-
-def R_2(a):
-    R = np.array([[cos(a), 0, 1*sin(a)],
-                  [0, 1, 0],
-                  [-1*sin(a), 0, cos(a)]])
-    return R
-
-def R_3(a):
-    R = np.array([[cos(a), 1*sin(a), 0],
-                  [-1*sin(a), cos(a), 0],
-                  [0, 0, 1]])
-    return R
+from math import sqrt, exp, tan, log10, pi, acos, asin, sin, cos
+from transformations import angle_calc, ecliptic_to_galactic, R_2, R_3, sun_scale
+from scipy.interpolate import NearestNDInterpolator, LinearNDInterpolator
+import time
 
 
-def trailing_loss(pixelWidth, vTransverse, time, distance):
-    factor = pixelWidth / ((vTransverse*time / distance) + pixelWidth)
-    deltaV = 2.5 * log10(factor)
-    return deltaV
+### Values vis
+vis_aperture = 0.2              # m^2 (0.5m diameter)
+vis_pixelAngle = 9.4e-11        # sr, from 2"/pixel
+vis_quantumEff = 0.88           # -
+vis_transmittance = 0.99        # -
+vis_straddleFac = 1             # - (compensated by trailing loss eq)
+vis_integrationTime = 24        # s
+vis_readNoise = 4               # e-
+vis_darkNoise = 0               # e-/s
+vis_factor = 8.937E-9           # correction for dumb units
+vis_coulomb = 1.6E-19           # J/e-
+
+### Values tir
+tir_aperture = 0.2              # m^2 (0.5m diamter)
+tir_pixelAngle = 2.12e-10       # sr, from 3"/pixel
+tir_quantumEff = 0.55           # -
+tir_transmittance = 0.99        # -
+tir_straddleFac = 1             # - (compensated by trailing loss eq)
+tir_integrationTime = 180       # s
+tir_readNoise = 30              # e-
+tir_darkNoise = 1000            # e-/s
+tir_factor = 7.49E-7            # correction for dumb units
+tir_coulomb = 1.6E-19           # J/e-
 
 
-def angleCalc(sinValue, cosValue):
-    # Copied from MatLab (https://nl.mathworks.com/matlabcentral/fileexchange/42365-angle-calculator-from-sin-and-cos-values)
-    # FLOATING POINT ERRORSSSSSSSSSS
-    if sinValue > 0.9999999 and sinValue < 1.00000001:
-        sinValue = 1
-    if sinValue < -0.9999999 and sinValue > -1.00000001:
-        sinValue = -1
-    theta=asin(sinValue)
-    if cosValue < 0:
-        if sinValue > 0:
-            theta = pi - theta
-        elif sinValue < 0:
-            theta = -pi-theta
-        else:
-            theta = theta+pi
-    return theta
+def blackbody(wavelength, temp, megajansky=False):
+    ''' returns blackbody radiation as function of wavelength and temperature'''
+    h = 6.626E-34 # Plack constant
+    kB = 1.380E-23 # Boltzmann constant
+    c = 299792458 # Light speed
+    v = c / wavelength
+    B = (2*h*v**3)/(c**2) / (np.exp((h*v)/(kB*temp)) - 1)
+    if megajansky:
+        B = B/(10**-20)
+    return B
 
 
-def ecliptic_to_galactic(l_ecl, b_ecl):
-    # Equinox 2000, Leinert et al.
-    b_NGP = 29.81           # Latitude of North Galactic Pole, deg
-    l_NGP = 270.02          # Ascending node of galaxy, deg
-    l_c = 6.38              # Direction to galactic core, deg
-    
-    l_ecl = l_ecl / 180 * pi
-    b_ecl = b_ecl / 180 * pi
-    b_NGP = b_NGP / 180 * pi
-    l_NGP = l_NGP / 180 * pi
-    l_c = l_c / 180 * pi
-    
-    b_gal = 180/pi*asin(sin(b_ecl)*sin(b_NGP) -
-                        cos(b_ecl)*cos(b_NGP)*sin(l_ecl - l_NGP))
-    if abs(b_gal - 0.5*pi) > 1e-10:
-        l_sin = (sin(b_ecl)*cos(b_NGP) +
-                 cos(b_ecl)*sin(b_NGP)*sin(l_ecl - l_NGP))/cos(b_gal/180*pi)
-        l_cos = cos(l_ecl - l_NGP)*cos(b_ecl)/cos(b_gal/180*pi)
-        try:
-            l_gal = 180/pi*angleCalc(l_sin, l_cos) + l_c
-            if l_gal < 0:
-                l_gal = 360 + l_gal
-        except ValueError:
-            print(l_sin, l_cos, b_gal)
-            raise ValueError
-    else:
-        l_gal = 0
-    
-
-    return l_gal, b_gal
-    
-    
-
-def phase_mag(t_mag, t_x, t_y, t_z, s_x, s_y, s_z):
+def vis_mag(t_mag, t_x, t_y, t_z, s_x, s_y, s_z):
+    # Returns visual magnitude of target asteroid
     r_x = s_x - t_x     # relative x
     r_y = s_y - t_y     # relative y
     r_z = s_z - t_z     # relative z
@@ -118,132 +73,130 @@ def phase_mag(t_mag, t_x, t_y, t_z, s_x, s_y, s_z):
         phi_2 = exp(-1.87*(tan(phase/2))**1.22)
         V = t_mag + 5*log10(t_abs*r_abs) - 2.5*log10(0.85*phi_1 + 0.15*phi_2)
     
-    return V
+    receivedFlux = 100**((V+26.74)/-5)*1350
+    
+    return receivedFlux
 
-zodiacGegenschein = pd.read_csv('zodiacgegenschein.csv', index_col=0, header=0)
-starBackground = pd.read_csv('starbackground.csv', index_col=0, header=0)
 
-SNR = np.zeros((181, 361))
+def tir_mag(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z):
+    stefanBoltzmann = 5.67E-8
+    beaming = 1.2
+    solarFlux = 1350 / (t_x**2 + t_y**2 + t_z**2)
+    R = 664500 / sqrt(t_alb) * 10**(-1*t_mag / 5)
+    T_max = ((1 - t_alb)*solarFlux/(beaming*stefanBoltzmann))**0.25
+    
+    # Next, calculate phase angle
+    r_x = s_x - t_x     # relative x
+    r_y = s_y - t_y     # relative y
+    r_z = s_z - t_z     # relative z
+    t_abs = sqrt(t_x*t_x + t_y* t_y + t_z*t_z)
+    r_abs = sqrt(r_x*r_x + r_y* r_y + r_z*r_z)
+    phase = acos((-t_x*r_x - t_y*r_y - t_z*r_z) / (t_abs*r_abs))
+    
+    delta_theta = pi/4
+    delta_phi = pi/4
+    delta_lambda = 299792458 / (10E-6 - 6E-6)
+    flux = 0
+    for theta in [-3/8*pi+phase, -1/8*pi+phase, 1/8*pi+phase, 3/8*pi+phase]:
+        for phi in [-3/8*pi, -1/8*pi, 1/8*pi, 3/8*pi]:
+            if theta > 7*pi/16:
+                continue # No flux
+            T = T_max*cos(theta)**0.25 * cos(phi)**0.25
+            flux += delta_theta * delta_phi * delta_lambda *\
+                0.5*(blackbody(6E-6, T) + blackbody(10E-6, T)) *\
+                    cos(phi) * cos(theta - phase)
+    power = flux*beaming*R**2
+    receivedFlux = power / ((r_abs * 150_000_000_000)**2)
+    return receivedFlux
 
-for i in range(0, 361):
-    for j in range(0, 181):
-        # Fetch coordinates
-        l_ecl_g = i
-        if l_ecl_g > 180:
-            l_ecl_g = 360 - l_ecl_g
-        b_ecl = j - 90
-        l_gal, b_gal = ecliptic_to_galactic(l_ecl_g, b_ecl)
-        l_ecl = i - l_solar
-        if l_ecl < 0:
-            l_ecl = 360 + l_ecl
-        if l_ecl > 180:
-            l_ecl = 360 - l_ecl
+
+def build_interpolator(filename):
+    dataFile = pd.read_csv(filename, index_col=0, header=0)
+    stackedData = dataFile.stack().reset_index().values
+    x = []
+    y = []
+    z = []
+    for item in stackedData:
+        x.append(float(item[0]))
+        y.append(float(item[1]))
+        z.append(float(item[2]))
+    interp = LinearNDInterpolator(list(zip(x, y)), z)
+    return interp
+
+
+vis_stars = build_interpolator('starbackground.csv')
+vis_zodiac = build_interpolator('zodiacgegenschein.csv')
+tir_stars = build_interpolator('ir_starbackground.csv')
+tir_zodiac = build_interpolator('ir_zodiacgegenschein.csv')
+
+
+def observation(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z, mode):
+    assert mode == "VIS" or mode == "TIR"
+    
+    r_x = t_x - s_x     # relative x
+    r_y = t_y - s_y     # relative y
+    r_z = t_z - s_z     # relative z
+    
+    r_abs = sqrt(r_x**2 + r_y**2 + r_z**2)
+    s_abs = sqrt(s_x**2 + s_y**2 + s_z**2)
+    t_abs = sqrt(t_x**2 + t_y**2 + t_z**2)
+    p_abs = sqrt(r_x**2 + r_y**2)
+    
+    l_z = acos((-r_x*s_x - r_y*s_y) / (p_abs * s_abs))
+    b_z = acos((r_x*t_x + r_y*t_y + r_z*t_z) / (r_abs * t_abs))
+    l_e = (l_z + pi)%(2*pi)
+    b_e = b_z
+    l_g, b_g = ecliptic_to_galactic(l_e, b_e)
+    l_z = l_z * 180 / pi
+    b_z = b_z * 180 / pi
+    
+    if mode == "VIS":
+        signalBG = (sun_scale(s_abs) * vis_zodiac(l_z, b_z) +\
+                    vis_stars(l_g, b_g)) * vis_integrationTime *\
+            vis_pixelAngle * vis_factor / vis_coulomb
             
-        # Get asteroid position and magnitude
-        vec = np.array([-asteroidRange, 0, 0])
-        pos = R_3(b_ecl/180*pi)@R_2(l_ecl/180*pi)@vec
-        x_t = pos[0] + 1
-        y_t = pos[1]
-        z_t = pos[2]
-        mag_t = -5*log10(asteroidSize * sqrt(0.15) / 1.329E6)
-        
-        V_t = phase_mag(mag_t, x_t, y_t, z_t, 1, 0, 0)
-        fluxTarget = 100**((V_t+26.74)/-5)*solarFlux
-        
-        
-        # Interpolate all table values for Zodiacal light and Gegenschein
-        # Get annoyed by string indices....
-        for k in range(len(zodiacGegenschein.index) - 1):
-            low = zodiacGegenschein.index[k]
-            high = zodiacGegenschein.index[k+1]
-            if int(high) <= l_ecl <= int(low):
-                l_ecl_low = low
-                l_ecl_high = high
-                # print(l_ecl, low, high)
-            else:
-                pass
-                # print(l_ecl, low, high, "no")
-        
-        for k in range(len(zodiacGegenschein.columns) - 1):
-            low = zodiacGegenschein.columns[k]
-            high = zodiacGegenschein.columns[k+1]
-            if int(low) <= b_ecl <= int(high):
-                b_ecl_low = low
-                b_ecl_high = high
-        
-        # Do linear interpolation
-        
-        ZGS_1_1 = zodiacGegenschein.loc[l_ecl_low, b_ecl_low]
-        # print(l_ecl, b_ecl, l_ecl_low, b_ecl_low, ZGS_1_1)
-        ZGS_1_2 = zodiacGegenschein.loc[l_ecl_low, b_ecl_high]
-        ZGS_2_1 = zodiacGegenschein.loc[l_ecl_high, b_ecl_low]
-        ZGS_2_2 = zodiacGegenschein.loc[l_ecl_high, b_ecl_high]
-
-        fac_l_1 = abs(int(l_ecl_high)-l_ecl) / abs(int(l_ecl_high)-int(l_ecl_low))
-        fac_l_2 = abs(l_ecl-int(l_ecl_low)) / abs(int(l_ecl_high)-int(l_ecl_low))
-        fac_b_1 = abs(int(b_ecl_high)-b_ecl) / abs(int(b_ecl_high)-int(b_ecl_low))
-        fac_b_2 = abs(b_ecl-int(b_ecl_low)) / abs(int(b_ecl_high)-int(b_ecl_low))       
-        
-        ZGS = fac_l_1*(fac_b_1*ZGS_1_1 + fac_b_2*ZGS_1_2) +\
-            fac_l_2*(fac_b_1*ZGS_1_1 + fac_b_2*ZGS_1_2)
+        signalTarget = vis_mag(t_mag, t_x, t_y, t_z, s_x, s_y, s_z) *\
+            vis_aperture * vis_quantumEff * vis_transmittance *\
+                vis_integrationTime / vis_coulomb
+                
+        SNR = (signalTarget * vis_straddleFac) /\
+            sqrt(vis_readNoise + (vis_darkNoise * vis_integrationTime) +\
+                 signalBG**2 + signalTarget)
             
+    if mode == "TIR":
+        signalBG = (sun_scale(s_abs) * tir_zodiac(l_z, b_z) +\
+                    tir_stars(l_g, b_g)) * tir_integrationTime *\
+            tir_pixelAngle * tir_factor / tir_coulomb
             
-        # Interpolate all table values for background starlight
-        # Get annoyed by string indices....
-        for k in range(len(starBackground.index) - 1):
-            low = starBackground.index[k]
-            high = starBackground.index[k+1]
-            if int(low) <= l_gal <= int(high):
-                l_gal_low = low
-                l_gal_high = high
-        
-        for k in range(len(starBackground.columns) - 1):
-            low = starBackground.columns[k]
-            high = starBackground.columns[k+1]
-            if int(low) <= b_gal <= int(high):
-                b_gal_low = low
-                b_gal_high = high
+        signalTarget = tir_mag(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z) *\
+            tir_aperture * tir_quantumEff * tir_transmittance *\
+                tir_integrationTime / tir_coulomb
+                
+        SNR = (signalTarget * tir_straddleFac) /\
+            sqrt(tir_readNoise + (tir_darkNoise * tir_integrationTime) +\
+                 signalBG**2 + signalTarget)
+    
+    return SNR
 
-        # Do nearest/linear interpolation
-        interpolation = 'linear'
-        
-        SBG_1_1 = starBackground.loc[l_gal_low, b_gal_low]
-        SBG_1_2 = starBackground.loc[l_gal_low, b_gal_high]
-        SBG_2_1 = starBackground.loc[l_gal_high, b_gal_low]
-        SBG_2_2 = starBackground.loc[l_gal_high, b_gal_high]
-        if interpolation == 'nearest':
-            if int(l_gal_high) - l_gal > l_gal - int(l_gal_low):
-                if int(b_gal_high) - b_gal > b_gal - int(b_gal_low):
-                    SBG = SBG_1_1
-                else:
-                    SBG = SBG_1_2
-            else:
-                if int(b_gal_high) - b_gal > b_gal - int(b_gal_low):
-                    SBG = SBG_2_1
-                else:
-                    SBG = SBG_2_2
-        elif interpolation == 'linear':
-            fac_l_1 = abs(int(l_gal_high)-l_gal) / abs(int(l_gal_high)-int(l_gal_low))
-            fac_l_2 = abs(l_gal-int(l_gal_low)) / abs(int(l_gal_high)-int(l_gal_low))
-            fac_b_1 = abs(int(b_gal_high)-b_gal) / abs(int(b_gal_high)-int(b_gal_low))
-            fac_b_2 = abs(b_gal-int(b_gal_low)) / abs(int(b_gal_high)-int(b_gal_low))       
-            
-            SBG = fac_l_1*(fac_b_1*SBG_1_1 + fac_b_2*SBG_1_2) +\
-                fac_l_2*(fac_b_1*SBG_1_1 + fac_b_2*SBG_1_2)
-        
-            
-        signalBG = 6.62E-12 * (ZGS + SBG) * pixelAngle * solarFlux / coulomb
-        signalTarget = fluxTarget * aperture * pixelAngle * quantumEff *\
-            transmittance*integrationTime / coulomb
-        ratio = (signalTarget / pixelAngle * straddleFac) /\
-              sqrt(readNoise + darkNoise + signalBG + signalTarget)
-        SNR[j, (i+180)%360] = ratio
+x_arr = [np.random.random() + 0.5 for i in range(100)]
+y_arr = [np.random.random() + 0.5 for i in range(100)]
+z_arr = [np.random.random() + 0.5 for i in range(100)]
 
-plt.figure(figsize=(10,5))
-plt.title(f"Signal-to-noise ratio for {asteroidSize}m asteroid at {asteroidRange}AU from spacecraft.")
-plt.imshow(SNR, cmap='hot', extent=[-180, 180, -90, 90])
-plt.xlabel('lambda [deg]')
-plt.ylabel('beta [deg]')
-plt.colorbar()
-plt.contour(SNR, 16, cmap='plasma', extent=[-180, 180, 90, -90])
+vis_startTime = time.time()
 
+for x in x_arr:
+    for y in y_arr:
+        for z in z_arr:
+            observation(15, 0.1, x, y, z, 1, 0, 0, 'VIS')
+vis_time = time.time() - vis_startTime
+
+tir_startTime = time.time()
+
+for x in x_arr:
+    for y in y_arr:
+        for z in z_arr:
+            observation(15, 0.1, x, y, z, 1, 0, 0, 'TIR')
+tir_time = time.time() - tir_startTime
+
+print(f"VIS time: {str(vis_time/1_000_000)}")
+print(f"TIR time: {str(tir_time/1_000_000)}")

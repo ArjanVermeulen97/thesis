@@ -22,20 +22,20 @@ fits_12 = fits.open('DIRBE_BAND05_ZSMA.FITS')
 data_info = fits_info[1].data
 data_49 = fits_49[1].data
 data_12 = fits_12[1].data
-
-# No list comprehension so we can check
-data_comb = []
-for i in range(len(data_info)):
-    assert data_info[i][0] == data_49[i][0]
-    assert data_info[i][0] == data_12[i][0]
-    entry = [data_info[i][0], data_49[i][1], data_12[i][1],
-             data_info[i][3], data_info[i][4]]
-    data_comb.append(entry)
+if False:
+    # No list comprehension so we can check
+    data_comb = []
+    for i in range(len(data_info)):
+        assert data_info[i][0] == data_49[i][0]
+        assert data_info[i][0] == data_12[i][0]
+        entry = [data_info[i][0], data_49[i][1], data_12[i][1],
+                 data_info[i][3], data_info[i][4]]
+        data_comb.append(entry)
+        
+    data_coords = [[item[3], item[4]] for item in data_comb]
+    data_z = [(item[1]+item[2])/2 for item in data_comb]
     
-data_coords = [[item[3], item[4]] for item in data_comb]
-data_z = [(item[1]+item[2])/2 for item in data_comb]
-
-f = NearestNDInterpolator(data_coords, data_z)
+    f = NearestNDInterpolator(data_coords, data_z)
 
 if False:
     # Generate pretty picture

@@ -10,6 +10,7 @@ Calculation of IR Zodiacal light
 import numpy as np
 import matplotlib.pyplot as plt
 from ir_data_convert import f
+import pandas as pd
 
 # Constants general
 T_0 = 286
@@ -25,6 +26,7 @@ def blackbody(wavelength, temp, megajansky=False):
     if megajansky:
         B = B/(10**-20)
     return B
+
 
 def coords_cartersian(R_sc, l_sc, b, l, s):
     '''Returns cartesian coordinates from latitude and longitude'''
@@ -178,7 +180,7 @@ if False:
     plt.grid()
     plt.colorbar()
     
-if True:
+if False:
     # Combine
     z_arr = np.zeros((360, 720))
     for y_index in range(360):
@@ -195,3 +197,27 @@ if True:
     plt.xlabel('Ecliptic longitude [deg]')
     plt.ylabel('Ecliptic latitude [deg]')
     plt.title('IR background averaged over 4.9 and 12 micron [MJy/sr]')
+    
+if True:
+    # Generate Excel
+    longitude = np.arange(0, 361, 10)
+    latitude = np.array([-90, -80, -70, -60, -50,
+                         -40, -40, -20, -15, -10,
+                         -5, -2, 0, 2, 5,
+                         10, 15, 19, 30, 40,
+                         50, 60, 70, 80, 90])
+    irZodiac = pd.DataFrame(index = longitude, columns = latitude)
+    for long in longitude:
+        for lat in latitude:
+            irZodiac.loc[long, lat] = 0.5*flux(np.pi,
+                                               long/180*np.pi,
+                                               lat/180*np.pi, 
+                                               1, 
+                                               4.9E-6) +\
+                    0.5*flux(np.pi, 
+                             long/180*np.pi, 
+                             lat/180*np.pi, 
+                             1, 
+                             12E-6)
+                    
+            irZodiac.to_csv('ir_zodiacgegenschein.csv')
