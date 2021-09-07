@@ -7,7 +7,7 @@ Created on Mon Sep  6 11:10:39 2021
 
 import numpy as np
 import pandas as pd
-from math import sqrt, exp, tan, log10, pi, acos, asin, sin, cos
+from math import sqrt, exp, tan, log10, pi, acos, asin, sin, cos, tanh
 from transformations import angle_calc, ecliptic_to_galactic, R_2, R_3, sun_scale
 from scipy.interpolate import NearestNDInterpolator, LinearNDInterpolator
 import time
@@ -36,7 +36,6 @@ tir_readNoise = 30              # e-
 tir_darkNoise = 1000            # e-/s
 tir_factor = 7.49E-7            # correction for dumb units
 tir_coulomb = 1.6E-19           # J/e-
-
 
 def blackbody(wavelength, temp, megajansky=False):
     ''' returns blackbody radiation as function of wavelength and temperature'''
@@ -80,8 +79,8 @@ def vis_mag(t_mag, t_x, t_y, t_z, s_x, s_y, s_z):
 
 def tir_mag(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z):
     stefanBoltzmann = 5.67E-8
-    beaming = 1.2
-    solarFlux = 1350 / (t_x**2 + t_y**2 + t_z**2)
+    beaming = 1.22
+    solarFlux = 1373 / (t_x**2 + t_y**2 + t_z**2)
     R = 664500 / sqrt(t_alb) * 10**(-1*t_mag / 5)
     T_max = ((1 - t_alb)*solarFlux/(beaming*stefanBoltzmann))**0.25
     
@@ -105,7 +104,7 @@ def tir_mag(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z):
             flux += delta_theta * delta_phi * delta_lambda *\
                 0.5*(blackbody(6E-6, T) + blackbody(10E-6, T)) *\
                     cos(phi) * cos(theta - phase)
-    power = flux*beaming*R**2
+    power = flux*0.9*R**2
     receivedFlux = power / ((r_abs * 150_000_000_000)**2)
     return receivedFlux
 
@@ -130,7 +129,7 @@ tir_stars = build_interpolator('ir_starbackground.csv')
 tir_zodiac = build_interpolator('ir_zodiacgegenschein.csv')
 
 
-def observation(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z, mode):
+def observation(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z, mode, verbose=False):
     assert mode == "VIS" or mode == "TIR"
     
     r_x = t_x - s_x     # relative x
@@ -175,28 +174,42 @@ def observation(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z, mode):
         SNR = (signalTarget * tir_straddleFac) /\
             sqrt(tir_readNoise + (tir_darkNoise * tir_integrationTime) +\
                  signalBG**2 + signalTarget)
-    
+    if verbose:
+        print(f"Background signal: {signalBG:.2}")
+        print(f"Target signal:     {signalTarget:.2}")
+        print(f"Signal-to-noise:   {SNR:.2}")
     return SNR
 
-x_arr = [np.random.random() + 0.5 for i in range(100)]
-y_arr = [np.random.random() + 0.5 for i in range(100)]
-z_arr = [np.random.random() + 0.5 for i in range(100)]
 
-vis_startTime = time.time()
+def detection(SNR, binary=True):
+    probability = 0.5 + 0.5*tanh(SNR-3)
+    if not binary:
+        return probability
+    else:
+        return probability > np.random.random()
 
-for x in x_arr:
-    for y in y_arr:
-        for z in z_arr:
-            observation(15, 0.1, x, y, z, 1, 0, 0, 'VIS')
-vis_time = time.time() - vis_startTime
 
-tir_startTime = time.time()
-
-for x in x_arr:
-    for y in y_arr:
-        for z in z_arr:
-            observation(15, 0.1, x, y, z, 1, 0, 0, 'TIR')
-tir_time = time.time() - tir_startTime
-
-print(f"VIS time: {str(vis_time/1_000_000)}")
-print(f"TIR time: {str(tir_time/1_000_000)}")
+if False:
+    # Make time estimate
+    x_arr = [np.random.random() + 0.5 for i in range(100)]
+    y_arr = [np.random.random() + 0.5 for i in range(100)]
+    z_arr = [np.random.random() + 0.5 for i in range(100)]
+    
+    vis_startTime = time.time()
+    
+    for x in x_arr:
+        for y in y_arr:
+            for z in z_arr:
+                observation(15, 0.1, x, y, z, 1, 0, 0, 'VIS')
+    vis_time = time.time() - vis_startTime
+    
+    tir_startTime = time.time()
+    
+    for x in x_arr:
+        for y in y_arr:
+            for z in z_arr:
+                observation(15, 0.1, x, y, z, 1, 0, 0, 'TIR')
+    tir_time = time.time() - tir_startTime
+    
+    print(f"VIS time: {str(vis_time/1_000_000)}")
+    print(f"TIR time: {str(tir_time/1_000_000)}")
