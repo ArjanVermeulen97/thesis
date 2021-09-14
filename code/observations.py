@@ -14,7 +14,7 @@ import time
 
 
 ### Values vis
-vis_aperture = 0.2              # m^2 (0.5m diameter)
+vis_aperture = 0.5              # m^2 (0.5m diameter)
 vis_pixelAngle = 9.4e-11        # sr, from 2"/pixel
 vis_quantumEff = 0.88           # -
 vis_transmittance = 0.99        # -
@@ -26,15 +26,15 @@ vis_factor = 8.937E-9           # correction for dumb units
 vis_coulomb = 1.6E-19           # J/e-
 
 ### Values tir
-tir_aperture = 0.2              # m^2 (0.5m diamter)
+tir_aperture = 0.5              # m^2 (0.5m diamter)
 tir_pixelAngle = 2.12e-10       # sr, from 3"/pixel
 tir_quantumEff = 0.55           # -
 tir_transmittance = 0.99        # -
 tir_straddleFac = 1             # - (compensated by trailing loss eq)
 tir_integrationTime = 180       # s
-tir_readNoise = 30              # e-
-tir_darkNoise = 1000            # e-/s
-tir_factor = 7.49E-7            # correction for dumb units
+tir_readNoise = 200               # e-
+tir_darkNoise = 1000             # e-/s
+tir_factor = 7.49E-19           # correction for dumb units
 tir_coulomb = 1.6E-19           # J/e-
 
 def blackbody(wavelength, temp, megajansky=False):
@@ -152,7 +152,8 @@ def observation(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z, mode, verbose=False)
     if mode == "VIS":
         signalBG = (sun_scale(s_abs) * vis_zodiac(l_z, b_z) +\
                     vis_stars(l_g, b_g)) * vis_integrationTime *\
-            vis_pixelAngle * vis_factor / vis_coulomb
+            vis_pixelAngle * vis_factor / vis_coulomb *\
+                vis_transmittance * vis_quantumEff * vis_aperture
             
         signalTarget = vis_mag(t_mag, t_x, t_y, t_z, s_x, s_y, s_z) *\
             vis_aperture * vis_quantumEff * vis_transmittance *\
@@ -160,12 +161,13 @@ def observation(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z, mode, verbose=False)
                 
         SNR = (signalTarget * vis_straddleFac) /\
             sqrt(vis_readNoise + (vis_darkNoise * vis_integrationTime) +\
-                 signalBG**2 + signalTarget)
+                 signalBG + signalTarget)
             
     if mode == "TIR":
         signalBG = (sun_scale(s_abs) * tir_zodiac(l_z, b_z) +\
                     tir_stars(l_g, b_g)) * tir_integrationTime *\
-            tir_pixelAngle * tir_factor / tir_coulomb
+            tir_pixelAngle * tir_factor / tir_coulomb *\
+                tir_transmittance * tir_quantumEff * tir_aperture
             
         signalTarget = tir_mag(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z) *\
             tir_aperture * tir_quantumEff * tir_transmittance *\
@@ -173,7 +175,7 @@ def observation(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z, mode, verbose=False)
                 
         SNR = (signalTarget * tir_straddleFac) /\
             sqrt(tir_readNoise + (tir_darkNoise * tir_integrationTime) +\
-                 signalBG**2 + signalTarget)
+                 signalBG + signalTarget)
     if verbose:
         print(f"Background signal: {signalBG:.2}")
         print(f"Target signal:     {signalTarget:.2}")
@@ -181,12 +183,20 @@ def observation(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z, mode, verbose=False)
     return SNR
 
 
-def detection(SNR, binary=True):
+def detection(SNR):
+    return 1 if SNR > 3 else 0
+
+
+def detection_prob(SNR, binary=True):
+    if SNR < 1:
+        return False
+    if SNR > 5:
+        return True
     probability = 0.5 + 0.5*tanh(SNR-3)
     if not binary:
         return probability
     else:
-        return probability > np.random.random()
+        return int(probability > np.random.random())
 
 
 if False:

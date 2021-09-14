@@ -1,0 +1,53 @@
+This is BibTeX, Version 0.99d (TeX Live 2021/W32TeX)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: plainnat.bst
+Database file #1: bibliography.bib
+Warning--I didn't find a database entry for "Verschuren"
+Warning--empty institution in InitialTaskforce
+Warning--empty institution in DefendingPlanetEarth
+Warning--empty institution in NEOSDT1
+Warning--empty institution in NEOSDT2
+Warning--empty institution in Flyeye
+You've used 10 entries,
+            2773 wiz_defined-function locations,
+            654 strings with 6247 characters,
+and the built_in function-call counts, 3344 in all, are:
+= -- 306
+> -- 182
+< -- 10
++ -- 64
+- -- 54
+* -- 205
+:= -- 576
+add.period$ -- 30
+call.type$ -- 10
+change.case$ -- 47
+chr.to.int$ -- 10
+cite$ -- 25
+duplicate$ -- 166
+empty$ -- 258
+format.name$ -- 74
+if$ -- 676
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 4
+newline$ -- 58
+num.names$ -- 40
+pop$ -- 73
+preamble$ -- 1
+purify$ -- 32
+quote$ -- 0
+skip$ -- 141
+stack$ -- 0
+substring$ -- 20
+swap$ -- 4
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 110
+warning$ -- 5
+while$ -- 30
+width$ -- 0
+write$ -- 131
+(There were 6 warnings)
