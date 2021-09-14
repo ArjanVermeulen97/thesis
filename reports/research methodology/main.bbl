@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{12}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -14,6 +14,18 @@ Harry Atkinson et~al.
 Alan~W. Harris and Germano D'Abramo.
 \newblock The population of near-earth asteroids.
 \newblock \emph{Icarus}, 257, 2015.
+
+\bibitem[Harris and Lagerros(2002)]{AsteroidsInTIR}
+Alan~W. Harris and Johan S.~V. Lagerros.
+\newblock Asteroids in the thermal infrared.
+\newblock In \emph{Asteroids III}, pages 205--218. University of Arizona Press,
+  2002.
+
+\bibitem[Lebovsky et~al.(1986)]{AsteroidSTM}
+Larry~A. Lebovsky et~al.
+\newblock A refined standard thermal model for asteroids based on observations
+  of 1 ceres and 2 pallas.
+\newblock \emph{Icarus}, 68, 1986.
 
 \bibitem[Mainzer et~al.(2014)]{NEOWISEFlex}
 A.~Mainzer et~al.

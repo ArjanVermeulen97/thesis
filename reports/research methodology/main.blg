@@ -1,53 +1,52 @@
-This is BibTeX, Version 0.99d (TeX Live 2021/W32TeX)
+This is BibTeX, Version 0.99d (TeX Live 2021/Arch Linux)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: plainnat.bst
 Database file #1: bibliography.bib
-Warning--I didn't find a database entry for "Verschuren"
 Warning--empty institution in InitialTaskforce
 Warning--empty institution in DefendingPlanetEarth
 Warning--empty institution in NEOSDT1
 Warning--empty institution in NEOSDT2
 Warning--empty institution in Flyeye
-You've used 10 entries,
+You've used 12 entries,
             2773 wiz_defined-function locations,
-            654 strings with 6247 characters,
-and the built_in function-call counts, 3344 in all, are:
-= -- 306
-> -- 182
-< -- 10
-+ -- 64
-- -- 54
-* -- 205
-:= -- 576
-add.period$ -- 30
-call.type$ -- 10
-change.case$ -- 47
-chr.to.int$ -- 10
-cite$ -- 25
-duplicate$ -- 166
-empty$ -- 258
-format.name$ -- 74
-if$ -- 676
+            665 strings with 6522 characters,
+and the built_in function-call counts, 4276 in all, are:
+= -- 396
+> -- 223
+< -- 13
++ -- 78
+- -- 66
+* -- 261
+:= -- 712
+add.period$ -- 37
+call.type$ -- 12
+change.case$ -- 56
+chr.to.int$ -- 12
+cite$ -- 29
+duplicate$ -- 218
+empty$ -- 341
+format.name$ -- 91
+if$ -- 889
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 4
-newline$ -- 58
-num.names$ -- 40
-pop$ -- 73
+missing$ -- 6
+newline$ -- 68
+num.names$ -- 48
+pop$ -- 93
 preamble$ -- 1
-purify$ -- 32
+purify$ -- 39
 quote$ -- 0
-skip$ -- 141
+skip$ -- 184
 stack$ -- 0
-substring$ -- 20
-swap$ -- 4
-text.length$ -- 0
+substring$ -- 52
+swap$ -- 15
+text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 110
+type$ -- 132
 warning$ -- 5
-while$ -- 30
+while$ -- 38
 width$ -- 0
-write$ -- 131
-(There were 6 warnings)
+write$ -- 158
+(There were 5 warnings)
