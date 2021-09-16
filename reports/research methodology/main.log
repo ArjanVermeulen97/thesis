@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/Arch Linux) (preloaded format=xelatex 2021.6.10)  14 SEP 2021 22:13
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/Arch Linux) (preloaded format=xelatex 2021.6.10)  16 SEP 2021 12:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1340,19 +1340,49 @@ Underfull \hbox (badness 10000) in paragraph at lines 132--133
 
  []
 
-[4] [5] [6]
-Underfull \hbox (badness 10000) in paragraph at lines 182--183
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 142--143
 
  []
 
-(./main.bbl) [7] (./main.aux) ) 
-Here is how much of TeX's memory you used:
- 29985 strings out of 476919
- 566826 string characters out of 5827674
- 1050266 words of memory out of 5000000
- 49442 multiletter control sequences out of 15000+600000
- 409045 words of font info for 106 fonts, out of 8000000 for 9000
- 1348 hyphenation exceptions out of 8191
- 102i,11n,130p,1189b,391s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on main.pdf (7 pages).
+Underfull \hbox (badness 10000) in paragraph at lines 144--145
+
+ []
+
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 153--154
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 155--156
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 157--158
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 165--166
+
+ []
+
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 170--172
+
+ []
+
+[7] (./main.bbl [8]) [9] (./main.aux) ) 
+Here is how much of TeX's memory you used:
+ 30019 strings out of 476919
+ 567699 string characters out of 5827674
+ 1049266 words of memory out of 5000000
+ 49473 multiletter control sequences out of 15000+600000
+ 409069 words of font info for 109 fonts, out of 8000000 for 9000
+ 1348 hyphenation exceptions out of 8191
+ 102i,12n,130p,1189b,514s stack positions out of 5000i,500n,10000p,200000b,80000s
+
+Output written on main.pdf (9 pages).

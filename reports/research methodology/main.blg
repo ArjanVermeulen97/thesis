@@ -3,50 +3,52 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: plainnat.bst
 Database file #1: bibliography.bib
+Warning--empty institution in NEODetection
 Warning--empty institution in InitialTaskforce
+Warning--empty year in CNEOSDatabase
 Warning--empty institution in DefendingPlanetEarth
 Warning--empty institution in NEOSDT1
 Warning--empty institution in NEOSDT2
 Warning--empty institution in Flyeye
-You've used 12 entries,
+You've used 20 entries,
             2773 wiz_defined-function locations,
-            665 strings with 6522 characters,
-and the built_in function-call counts, 4276 in all, are:
-= -- 396
-> -- 223
-< -- 13
-+ -- 78
-- -- 66
-* -- 261
-:= -- 712
-add.period$ -- 37
-call.type$ -- 12
-change.case$ -- 56
-chr.to.int$ -- 12
-cite$ -- 29
-duplicate$ -- 218
-empty$ -- 341
-format.name$ -- 91
-if$ -- 889
+            709 strings with 7670 characters,
+and the built_in function-call counts, 6972 in all, are:
+= -- 633
+> -- 364
+< -- 21
++ -- 128
+- -- 108
+* -- 417
+:= -- 1155
+add.period$ -- 61
+call.type$ -- 20
+change.case$ -- 89
+chr.to.int$ -- 20
+cite$ -- 47
+duplicate$ -- 363
+empty$ -- 578
+format.name$ -- 148
+if$ -- 1454
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 6
-newline$ -- 68
-num.names$ -- 48
-pop$ -- 93
+missing$ -- 13
+newline$ -- 108
+num.names$ -- 80
+pop$ -- 167
 preamble$ -- 1
-purify$ -- 39
+purify$ -- 64
 quote$ -- 0
-skip$ -- 184
+skip$ -- 299
 stack$ -- 0
-substring$ -- 52
-swap$ -- 15
+substring$ -- 68
+swap$ -- 22
 text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 132
-warning$ -- 5
-while$ -- 38
+type$ -- 215
+warning$ -- 7
+while$ -- 62
 width$ -- 0
-write$ -- 158
-(There were 5 warnings)
+write$ -- 257
+(There were 7 warnings)

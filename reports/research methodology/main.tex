@@ -137,11 +137,40 @@ Lastly, the ``optimal'' part of the survey. As the satellites are not bound to a
 In this section, the methodology for the three sub-objectives stated above is laid out. Furthermore, as a complicated model is to be developed, there will also be an addition of the methodology for validating said model.
 
 \subsection{Asteroid Population}
-https://www.mv.helsinki.fi/home/mgranvik/data/Granvik+\_2018\_Icarus/
-https://www.sciencedirect.com/science/article/pii/S0019103517307017?via\%3Dihub#fn0003
+%https://www.mv.helsinki.fi/home/mgranvik/data/Granvik+\_2018\_Icarus/
+%https://www.sciencedirect.com/science/article/pii/S0019103517307017?via\%3Dihub#fn0003
+Several peer-reviewed and validated models of the NEA population exist, which can be used easily for the intended research. It is important to assess the model using different population models, to ensure generalization of the solution. For a full population model, intended to assess the identification and cataloguing performance, two models have been selected. The first model is the de-biased model by \cite{PopulationGranvik}. This model continues on the work of \cite{PopulationHarris}, as well as the results of the NEOWISE mission. It derives an algorithmic model which can directly generate a representative population of NEA's. In addition to this model, the real database of NEAs gathered by NASA/JPL will be used (\cite{CNEOSDatabase}). Although this model is biased, as it only includes asteroids that were discovered already, it is known to be a correct representation of reality, as it is not simulated.\\
+
+As asteroid impacts are rare, assessing the warning time requires a population of synthetic impactors. Using various methods, several authors have created and succesfully used populations of synthetic impacts, with representative orbital elements to actual impactors. The standard among these models is the model by \cite{ChelseyPop}. This model includes orbital elements for a large population of asteroids, as well as predicted time of impact. In addition, the model developed by \cite{Flyeye} will be used, which has been applied in this fashion in the past as well (see \cite{ThesisOlga}).\\
+
+Lastly, in order to determine the position of the asteroids in time from their orbital elements, simple Keplerian orbits will be used, as precise accuracy of the orbits is not neccessary for the inteded research. This will save a lot of computational power in optimization.
+
 
 \subsection{Survey Modelling}
+Modelling of the survey is by far the largest part of the initial set-up work. The survey can be split up into three categories: Modelling the background signal and noise, modelling the signal from the asteroids, and modelling the cadence and detection by the satellite. As mentioned previously, both visual light and thermal infrared will be considered. Therefore, models needs to be developed for both.
 
+\subsubsection{Background Signal and Noise}
+There are a lot of components to the background signal: Diffuse starlight from the night sky, a concentration of background light along the plane of the Milky Way, the direct light of the Sun, the zodiacal light, and the so-called gegenschein. For simplicity, these components are split into a Solar and a galactic component. The Solar component is dependent on the location of the satellite around the Sun; the galactic component is not. \\
+
+For the visual light, implementation is simple. Detailed measurements have been taken of the visual background light, see e.g. \cite{LightOfTheNightSky}. These values have been tabulated by \cite{DiffuseSkyBrightness}, split into Solar and galactic components. These can be directly implemented. \\
+
+The thermal infrared signal is slightly more complicated, as the contribution of zodiacal light is dependant not only on reflection, but on temperature distribution of interplanetary dust. The most complete model available currently is based on the COBE mission, as described by \cite{COBEIRBackground}. This model is split up into detailed measurements of the galactic IR background, combined with a model of interplanetary dust. This model can be integrated numerically to find the contribution of interplanetary dust and solar radiation. \\
+
+Lastly, there are several noise terms integral to the detector. These are mainly read noise and thermal noise. The values for these are hardware dependent and were taken from \cite{NEOSDT2}. In addition, because of the nature of a signal consisting of individual particles, there is a contribution of Poisson noise in all terms.
+
+\subsubsection{Target Signal}
+Determination of the target signal in the visual light is straightfoward: by assuming the asteroid approximates a lambertian sphere, and the stard phase function can be used. However, no such phase function has been found in the infrared spectrum. The basis for the infrared signature of an asteroid was given by \cite{AsteroidSTM}: By making an assumption on the temperature distribution of the asteroid, based on its thermal balance, a numerical integration of the visible hemisphere is performed for the flux. This model was later refined by \cite{AsteroidsInTIR} using data from a larger number of asteroids. Their Near-Earth Asteroid Thermal Model (NEATM) will be used in the experiment.
+
+\subsubsection{Cadence and Detection}
+Detection of NEAs is contingent on several repeat measurements. These \textit{tracklets} can then be combined to fit the orbital elements (\cite{OpNav}). Therefore, how often a measurement is taken is of relevance. In order to determine the frequency of measurements, the \textit{cadence}, an analysis of the ADCS will be performed together with the required integration time of the camera (from \cite{NEOSDT2} and \cite{ThesisOlga}). \\
+
+To establish a detection, a signal-to-noise ratio calculation will be performed. This saves a lot of computational load compared to processing generated images. The SNR can be calculated according to \cite{NEODetection} as follows:
+\begin{equation}
+\mathrm{SNR} = \frac{\frac{1}{hc}A\tau k_{sf} \int_{\lambda_1}^{\lambda_2}E_A(\lambda)Q_e(\lambda)T(\lambda)\lambda d \lambda}{\sqrt{S_e + B_e + D_e + R_e^2}}
+\end{equation}
+With target and background signal in electrons $S_e$ and $B_e$, dark noise $D_e$ and read noise $R_e$. The remaining terms are largely efficiency terms, the interested reader is refered to \cite{NEODetection} or \cite{OpNav} for a thorough explanation. Note that only the poisson component of the background signal has to be taken into account, as the mean signal can be subtracted easily (\cite{OpNav}).\\
+
+To convert a SNR to a detection, a probabilistic approach is taken. A lower threshold of SNR = 1 is set (0\% chance of detection), and a higher threshold of SNR = 5 (100\% detection). Between these thresholds, an integrated Gaussian is used to determine the detection probabilistically. 3 detections within a time span of 90 days will lead to the asteroid being identified (\cite{NEOSDT1}). Lastly, by numerically working through this model in time, the performance of the full asteroid survey can be modelled.
 
 \subsection{Optimization}
 
@@ -178,17 +207,6 @@ Be mindful that your planning is realistic and contains iterations and interlink
 
 \section{Conclusions}
 The conclusions regarding what you are proposing should be written in a precise, unique, clear and accurate manner. Always check if they are well supported by the work you presented in the project proposal and check them against the main literature so that you can make a statement about the longer-term impact of your work on the body of knowledge. Lift the most important conclusions into the Executive Summary and check that both are consistent, also with the Introduction. This is done because the Executive Summary, Introduction and Conclusion form the key points of entry and exit into the work and make a big impact on accessibility and getting across the relevance!
-
-\section{References}
-List all references consistently, using one of the preferred approaches, for example the Harvard referencing system. A useful link on how to quote and reference properly can be found in the Guide to Harvard referencing from the Anglia Ruskin University Library in the UK: \url{http://libweb.anglia.ac.uk/referencing/harvard.htm}. If you use numbered references do not use them as a noun and always mention the author’s name. So not: [1] says she is always right, but Saunders-Smits [1] says she is always right. Also avoid giving a lot of references in one go as in: Chocolate is a vegetable [1- 15]. Explain the view of each paper and group them per view. Now it looks like you never read all the papers and are just trying to show off.
-
-The key thing is that the referred to author is given credit through their earlier work, that this is dated to show the chronological order of developments, and that the reader has enough information to go and find that specific reference. Relative to the latter point: where was the conference or if a journal review what was the volume or edition number and certainly page numbers. Always paraphrase or if you quote literally please use italics and quotation marks followed by the name of the author and either the year or the reference number depending on your chosen reference style to avoid even the notion of plagiarism.
-
-The strongest references are ones that have been reviewed prior to publication (journals for example) and the weakest are web sites and popular publications. Only reputable websites (from a society or major industry player) should be included and the date of access should be noted. Preferably stay away from web references as they are so uncontrolled as sources of information especially from web fora and commercial parties.
-
-Note: web references, lecture notes, technical reports, standard textbooks etc. do not count towards the number of quality references used as they are not scientifically peer reviewed. The number of quality references should always greatly outnumber the number of general references. It looks unprofessional to refer to the textbook and templates of this course.
-
-Finally, when using a reference management system such as OneNote, Mendeley or BibTex, do check each entry for completeness and correctness. When filling your management system automatically, mistakes and omissions often occur. \newline
 
 
 %% Use letters for the chapter numbers of the appendices. 
