@@ -6,6 +6,7 @@
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{lscape}
 
 
 %% Uncomment the following three lines when using the biblatex package
@@ -50,8 +51,7 @@
 \maketitle
 
 \section*{Executive Summary}
-In this section try and state, in under 300 words, the major aspects of your project plan. It should include what the project is about, what the main content of the plan will be what the main objectives of your research are, the methods you will use to achieve those objectives and what your possible findings could be. End with a strong sentence that highlights the significance of the work to be undertaken and any long-standing contribution to the body of knowledge. Remember that this is a proposal of work to be done and so you might also say something about the motivation and feasibility.
-
+A research project is proposed to investigate capabilities and properties of a space-based Near-Earth Asteroid (NEA) survey using a system of multiple satellites. In recent years, several research projects have investigated deep space NEA surveys, in order to improve the fraction of known NEAs smaller than 140 meter, as well as the warning time before impact. The research proposed here aims to investigate the influence of the number of satellites in a space-based survey through detailed simulation of Near-Earth Asteroid surveys. By modelling the asteroid population, the visual and thermal infrared target and background signal, and the survey-specific properties, such as detection chance, the relations and behavior of such missions will be mapped out. As the first research into multi-satellite NEA surveys, this work will provide the groundwork for more detailed research into specific missions which can further humanity's protection against asteroid impacts, as well as its understanding of the smaller bodies in the Solar system.
 
 
 
@@ -134,7 +134,7 @@ The second sub-objective is to accurately model the survey of this population. F
 Lastly, the ``optimal'' part of the survey. As the satellites are not bound to a single position, options such as L1 points are no longer a de-facto preferred location. Therefore, a method is necessary to determine what the optimal placement and composition of such a system is. Most likely, this will be the most computationally intensive part, as the complexity of the problem quickly grows when increasing the size of the system.
 
 \section{Theoretical Content/Methodology}
-In this section, the methodology for the three sub-objectives stated above is laid out. Furthermore, as a complicated model is to be developed, there will also be an addition of the methodology for validating said model.
+In this section, the methodology for the three sub-objectives stated above is laid out.
 
 \subsection{Asteroid Population}
 %https://www.mv.helsinki.fi/home/mgranvik/data/Granvik+\_2018\_Icarus/
@@ -173,32 +173,63 @@ With target and background signal in electrons $S_e$ and $B_e$, dark noise $D_e$
 To convert a SNR to a detection, a probabilistic approach is taken. A lower threshold of SNR = 1 is set (0\% chance of detection), and a higher threshold of SNR = 5 (100\% detection). Between these thresholds, an integrated Gaussian is used to determine the detection probabilistically. 3 detections within a time span of 90 days will lead to the asteroid being identified (\cite{NEOSDT1}). Lastly, by numerically working through this model in time, the performance of the full asteroid survey can be modelled.
 
 \subsection{Optimization}
+To judge the capabilities of the system as a function of the number of satellites, the optimal position and composition has to be determined. As little is known about the function of the system, there is no simple mathematical model available to perform this optimization. Therefore, a numerical approach is required. \\
 
+Initially, some exploration of the behavior of the system is required. At this stage, too little is known about the system to select a proper optimization algorithm. Therefore, the first stage of research will use a coarse grid search, as detailed in \cite{DLOne}. In a grid search, all variables are iterated over at a preset interval. All performance metrics will be recorded, and the highest score will present the optimal solution. \\
 
-\subsection{Validation}
+When initial data is available to assess the behavior of the system, it is possible to select a proper optimizer for further research. Due to the nature of the model, it is expected that some form of heuristic optimization will be required. This class of methods uses a heuristic to approximate the optimal solution, rather than converging mathematically. As a result, they can be significantly faster when applied properly, and they can be applied to more diverse problems. Common methods that will be traded off include, but are not limited to, genetic algorithms, simulated annealing and particle swarm optimization. These methods are extensively documented by e.g. \cite{DLTwo} and \cite{DLOne}.
 
 
 \section{Experimental Set-up}
-What is your laboratory set-up or in the field set-up? Present it such that readers can better informed and critical of any limitations of your research environment and your set-up. For example, how will the collaboration with industry work? Or are there any practical implications of your Methodology from Section 3? Keep in mind that Experiments are more than just questionnaires, interviews or physical tests in a laboratory. Creating or modifying a computer programme or a computer model is also considered an experiment, so their set up, documentation and limitations should be discussed here. 
+As explained in the methodology section, experiments will be ran purely numerically on computers. All simulations will be created in Python 3, for the following reasons: Firstly, Python offers a wide framework of advanced optimization tools, and data analysis toolkits. In addition, Python is simple to work with and validate, as it is an interpreted language. It thus allows for easy iteration. Lastly, the author is highly familiar with Python 3 and the relevant packages. \\
 
-Do not forget to include technical details such as machines to be used, programming language or modelling software and why you selected those to reach your objective as stated in section 3.
+The main packages that will be used are the data handling package \textit{Pandas}, which allows for object-oriented style handling of large amounts of data in-memory. For optimization, the preferred packages are Scikit-Learn and Tensorflow, both of which allow for out-of-the-box application of algorithms as they are described by e.g. \cite{DLOne}. Importantly, both these packages are widely used, and their implementation has been thoroughly reviewed. The former allows for executing the code on CPU cores. The latter also supports GPU acceleration through CUDA, if neccessary. Data visualisation will be performed using Seaborn, a wrapper for Matplotlib. \\
 
-
+To run the simulation, the author has access to several modern desktop computers equiped with 6- and 8-core processors, and Nvidia graphics cards supporting CUDA. Initially, it is expected that this will suffice to generate results in a relatively quick manner. In addition, a request will be made to the department of Astrodynamics and Space Missions for access to their compute cluster. This cluster will be used in later stages of research where more computationally intensive simulations will be ran.
 
 
 \section{Results, Outcome and Relevance}
 What data etc. will you be working with, which variables and parameters, and what type of results do you want to investigate? Then go on to try and project the sort of outcome you are interested in and of course ultimately what the relevance of that is both for your project but try and say something about possible larger impacts of your work. Mention how you expect to validate and verify your results. This is a key part of your thesis, so it is important to consider this early in your research.
 
 
+Starting from the research question, the topics of interest are the performance, optimal position, and configuration of the space system. The main dependent variable is the performance, which will be assessed in two ways: The first and primary objective is the \textit{survey completeness}, the fraction of asteroids which is detected after a survey. The secondary objective is the \textit{warning time} of impacting asteroids, measured in the number of days before impact that the asteroid is found. This will be assessed relative to the current performance of warning systems such as ATLAS. \\
 
+Primarily, the research aims to show what the effects are of changing the position and configuration - both in payload and in number - of the sytem on its performance. Through this, in the future more advanced missions may be considered which will advance the knowledge of the NEA population as much as possible. Specific results which are of particular interest are listed in the following paragraphs. \\
+
+Firstly, the effect on performance when increasing the number of satellites. It is expected that the performance will increase with every added satellite. In addition, two effects are hypothesized: firstly, due to the nature of orbit determination (instead of solving Gauss' problem with observations from a single satellite, using multiple satellites allows for triangulating the position, and solving Lambert's problem instead), it is expected that a synergistic effect will appear for low numbers of satellites. Secondly, it follows logically that there will be a form of diminishing returns in the number of satellites for higher numbers. \\
+
+In addition to the primary performance of the system, the other parameters of interest are the optimal values of the independent variables in the optimization. This will give insights into how, for example, the optimal semi-major axis of the mission's orbit evolves when the number of satellites in the system increases. It is expected that, as more satellites allow for more spreading out, the optimal semi-major axis will increase as the number of satellites increases. Additionally, this will allows evaluation of the performance and interaction of the various payloads. \\
+
+Because of the complex nature of the simulation, verification and validation are essential to ensure robust results. This is further complicated by the application of heuristic-based optimization methods, which can be prone to overfitting the data (\cite{DLOne}). Verification of the software will be performed through standard verification practices: during programming unit tests of the various functions and subfunctions will be performed, supplemented by code review. Validation will be performed through comparison of the (partial) outputs of the simulations to results presented in literature. Most of the components of the models originate in articles, which often include examples of their results. Replication of these results should be checked. For the full system, the results will be compared by simulating surveys similar to those performed by \cite{NEOSDT2}. The performance of these surveys should be a replication of the results from literature, without prejudice to small deviations originating frmo changes in implementation. Lastly, there are several steps to ensure a robust generalization of the optimization. Mainly, several datasets or selections from datasets should be evaluated per solution. This ensures that the optimization will not overfit to the population or survey models, but will provide insights into the underlying problem as intended. The results should also be closely inspected for this, and compared to a validation set which was not used prior to or during optimization (see e.g. \cite{DLTwo} for best practices regarding robustness of these models).
+
+In the end, the research will provide relations between the various parameters in such a complex system. Although no exact design of a mission can be given, these relations can be used as a starting point for designing the asteroid survey missions of the future.
 
 
 \section{Project Planning and Gantt Chart}
-Look at the logistics of carrying out the work, develop the intended work into work packages (from the tasks mentioned in Section 3) and then incorporate all that into a schedule of work through a Gantt chart (or Integrated Master Plan/Integrated Master Schedule). You must, at a reasonably high level, try to estimate time required and any resource constraints etc. and then fit that into a schedule. A Work Breakdown Structure and Work Flow Diagram can be very helpful (ref: DSE). You will put in three key review points: 1) the Kick-off Review/preliminary meeting; 2) the Mid-term Review; and 3) the Green Light Review. Remember holidays etc., preparing deliverables etc. and that some tasks will be concurrent and running in parallel. 
+In any project, proper planning is extremely important in order to avoid delays and ensure a smooth execution of the plans. To this end, a work breakdown will be performed, from which a Gannt chart will be constructed.
+\subsection{Work Breakdown}
+The work is broken down into nine phases. These phases are ordered in order of execution, although there is some overlap between the various phases. This will be further shown in the Gantt chart. The phases are as follows:
+\begin{enumerate}
+\setlength\itemsep{-0.5em}
+ \item \textbf{Mission}: Firstly, it needs to be made clear exactly \textit{what} the problem is that needs to be adressed, and \textit{how} it will be tackled.
+ \item \textbf{System description and boundaries}: Then, the system will be analysed to find the relevant boundaries, define the scope of the research, and identify and key requirements and constraints.
+ \item \textbf{Asteroid population modelling}: After the initial examination of the mission and system, the modelling will begin. The first part of the model, the asteroid population, will be largely performed from sources in literature, as explained in the methodology section.
+ \item \textbf{Survey modelling}: The largest part of the modelling effort concerns the survey modelling, with both target signal calculations as well as background and noise calculations, combined with survey-specific properties following from the mission and system description.
+ \item \textbf{Optimization}: Based on examination of the initial properties of the system, an optimization method will be selected and implemented to find the best possible solutions to the problem.
+ \item \textbf{Research}: Parameters and quantities of interest have to be examined to explore the properties of the system. This ranges from deriving simple 1-to-1 relations between variables, to complex multi-dimensional simulations. Covering the relevant parts of the solution space is essential for making sure all aspects of the problem are explored.
+ \item \textbf{Analysis}: The research phase will generate a large quantity of data. This data has to be analysed, both qualitatively as well and quantitatively. Through this, a robust understanding of the problem can be formulated, and conclusions can be drawn which are useful in designing future missions.
+ \item \textbf{Reporting}: All phases need to be adequately documented, supported and explained. The process of reporting should be simultaneous with the work, and should not be left for the last moment.
+ \item \textbf{Presentation}: Finally, a public defense of the work performed needs to be prepared and delivered.
+\end{enumerate}
 
-Be mindful that your planning is realistic and contains iterations and interlinking of activities to show how activities may depend on each other. Also motivate your planning, do not just put in a Gannt Chart. Use proper software to generate a Gantt chart.
-
-\noindent Finally, the Gantt chart should visibly show any key review points, milestones (points of specific achievement relative to the end goal) and deliverables (tangible outputs such as reports, presentations, papers, manuals, tools, workshops,).
+To convert this work to a Gantt chart, it is considered what activities depend on each other. This is vital to ensure no delays occur when a part of the work gets stuck, or is performed too late. There are a few main drivers to ensuring this happens swiftly: At first, the simulation has to be developed. No research work can be carried out before this is done, and as such it is vital to finish this as soon as possible. As running the simulations can take a considerable amount of time, the simulations should be validated before it is used, not afterwards. Then, when running the simulations, the results can be examined in parallel. Examining these results allows for an iterative process: interesting relations are found, and from there more targeted research can be performed. In addition, some exploration will need to take place before a suitable optimizer can be selected. Lastly, all work needs to be done in time for the relevant milestones (Kick-off, Mid-term review and Green-light review), as well as in time to allow for reporting. The work breakdown structure can be found in \autoref{sec:WBS} and the Gantt chart in \autoref{sec:Gantt} The dates for the relevant milestones are set as follows:
+\begin{itemize}
+\setlength\itemsep{-0.5em}
+ \item Kick-off meeting: 9 August
+ \item Mid-term review: 12 November
+ \item Green-light review: 28 January
+ \item Defense and graduation: 28 February
+\end{itemize}
 
 
 
@@ -217,9 +248,26 @@ The conclusions regarding what you are proposing should be written in a precise,
 
 %% Uncomment the following line when using the biblatex package
 % \printbibliography
+\newpage
+\begin{landscape}
+ \section{Work Breakdown Structure}
+ \label{sec:WBS}
 
 
-\section{Gantt Chart}
-Feel free to put the Gannt Chart in an Appendix. The references and the Gantt chart do not count towards the 10-page limit of the plan.
+\begin{figure}[h!]
+ \includegraphics[width=1.0\textwidth]{figures/wbs.png}
+\end{figure}
+Full resolution link: \url{https://surfdrive.surf.nl/files/index.php/s/WY60MXT6ajXHEfp}
+\end{landscape}
+\newpage
+\begin{landscape}
+ \section{Gantt Chart}
+ \label{sec:Gantt}
 
+
+\begin{figure}[h!]
+ \includegraphics[width=1.0\textwidth]{figures/thesis_rm.png}
+\end{figure}
+Full resolution link: \url{https://surfdrive.surf.nl/files/index.php/s/PnEzMoALQzlE50b}
+\end{landscape}
 \end{document}

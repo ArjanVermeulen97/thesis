@@ -10,45 +10,45 @@ Warning--empty institution in DefendingPlanetEarth
 Warning--empty institution in NEOSDT1
 Warning--empty institution in NEOSDT2
 Warning--empty institution in Flyeye
-You've used 20 entries,
+You've used 22 entries,
             2773 wiz_defined-function locations,
-            709 strings with 7670 characters,
-and the built_in function-call counts, 6972 in all, are:
-= -- 633
-> -- 364
-< -- 21
-+ -- 128
-- -- 108
-* -- 417
-:= -- 1155
-add.period$ -- 61
-call.type$ -- 20
-change.case$ -- 89
-chr.to.int$ -- 20
-cite$ -- 47
-duplicate$ -- 363
-empty$ -- 578
-format.name$ -- 148
-if$ -- 1454
+            720 strings with 7836 characters,
+and the built_in function-call counts, 7609 in all, are:
+= -- 682
+> -- 394
+< -- 23
++ -- 139
+- -- 117
+* -- 452
+:= -- 1260
+add.period$ -- 67
+call.type$ -- 22
+change.case$ -- 95
+chr.to.int$ -- 22
+cite$ -- 51
+duplicate$ -- 403
+empty$ -- 642
+format.name$ -- 160
+if$ -- 1588
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 13
-newline$ -- 108
-num.names$ -- 80
-pop$ -- 167
+missing$ -- 17
+newline$ -- 118
+num.names$ -- 88
+pop$ -- 191
 preamble$ -- 1
-purify$ -- 64
+purify$ -- 70
 quote$ -- 0
-skip$ -- 299
+skip$ -- 325
 stack$ -- 0
-substring$ -- 68
-swap$ -- 22
+substring$ -- 72
+swap$ -- 24
 text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 215
+type$ -- 227
 warning$ -- 7
-while$ -- 62
+while$ -- 68
 width$ -- 0
-write$ -- 257
+write$ -- 281
 (There were 7 warnings)

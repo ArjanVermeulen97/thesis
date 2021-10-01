@@ -1,4 +1,4 @@
-\begin{thebibliography}{20}
+\begin{thebibliography}{22}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -21,6 +21,17 @@ William~F. Bottke et~al.
 \newblock In search of the source of asteroid (101955) bennu: Applications of
   the stochastic yorp model.
 \newblock \emph{Icarus}, 247, 2015.
+
+\bibitem[Geron(2019)]{DLOne}
+Aurelion Geron.
+\newblock \emph{Hands-on Machine Learning with Scikit-Learn, Keras \&
+  Tensorflow}.
+\newblock O'Reilly, 2019.
+
+\bibitem[Goodfellow et~al.(2016)]{DLTwo}
+I.~Goodfellow et~al.
+\newblock \emph{Deep Learning}.
+\newblock MIT University Press, 2016.
 
 \bibitem[Granvik et~al.(2018)]{PopulationGranvik}
 M.~Granvik et~al.
