@@ -12,21 +12,11 @@ from math import sqrt, exp, tan, log10, pi, acos, asin, sin, cos, tanh
 from observations import observation, detection, detection_prob
 from orbital import pos_heliocentric, theta_solve, theta_step
 import seaborn as sns
+from population_models import init_asteroids_jpl, init_asteroids_granvik
 import matplotlib.pyplot as plt
 
-
 def init_asteroids():
-    df_asteroids = pd.read_csv('jpl_neo.csv')
-    df_asteroids = df_asteroids.sample(n=10000, random_state=9)
-    df_asteroids['long_node'] = df_asteroids['long_node']/180*pi
-    df_asteroids['arg_peri'] = df_asteroids['arg_peri']/180*pi
-    df_asteroids['anomaly'] = df_asteroids['anomaly']/180*pi
-    df_asteroids['n_obs'] = 0
-    df_asteroids['step_obs'] = 0
-    df_asteroids['last_obs'] = 0
-    df_asteroids['detected'] = 0
-    df_asteroids = df_asteroids.fillna(0.15)
-    return df_asteroids
+    return init_asteroids_granvik(12000, True)
 
 
 def init_satellites(n):
@@ -36,8 +26,8 @@ def init_satellites(n):
                       'long_node': 0,
                       'arg_peri': 0,
                       'anomaly': 0.2*n,
-                      'payload': 'VIS',
-                      'cadence': 2} for i in range(n)}
+                      'payload': 'TIR',
+                      'cadence': 21} for i in range(n)}
     return satellites
 
 
@@ -96,7 +86,7 @@ if __name__ == '__main__':
     verbose = True
     plt.figure()
     df_asteroids = init_asteroids()
-    sns.histplot(df_asteroids['H'], bins=range(10,30))
+    sns.histplot(df_asteroids['H'], bins=range(17,26))
     for n_sats in reversed(range(1, 6)):
         if n_sats > 1:
             continue
@@ -104,7 +94,7 @@ if __name__ == '__main__':
         df_asteroids = init_asteroids()
         satellites = init_satellites(n_sats)
         completeness = []
-        for day in range(0, 3650, 2):
+        for day in range(0, 3650, 21):
             n_detected = df_asteroids[df_asteroids['detected'] > 0]['detected'].count()
             n_undetected = df_asteroids[df_asteroids['detected'] == 0]['detected'].count()
             if verbose:
@@ -122,7 +112,7 @@ if __name__ == '__main__':
             df_asteroids['n_obs'] = df_asteroids.swifter.progress_bar(False).apply(lambda row: row['n_obs'] + row['step_obs'], axis=1)
             df_asteroids['last_obs'] = df_asteroids.swifter.progress_bar(False).apply(lambda row: day if row['step_obs'] > 0 else row['last_obs'], axis=1)
             df_asteroids['step_obs'] = 0
-        sns.histplot(df_asteroids[df_asteroids['detected'] > 0]['H'], bins=range(10,30))
+        sns.histplot(df_asteroids[df_asteroids['detected'] > 0]['H'], bins=range(17,26), color='red')
         print(f"Completeness: {completeness[-1]:.2%}")
         print()
     plt.show()

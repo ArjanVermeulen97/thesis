@@ -136,10 +136,14 @@ def observation(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z, mode, verbose=False)
     r_y = t_y - s_y     # relative y
     r_z = t_z - s_z     # relative z
     
-    r_abs = sqrt(r_x**2 + r_y**2 + r_z**2)
-    s_abs = sqrt(s_x**2 + s_y**2 + s_z**2)
-    t_abs = sqrt(t_x**2 + t_y**2 + t_z**2)
-    p_abs = sqrt(r_x**2 + r_y**2)
+    try:
+        r_abs = sqrt(r_x**2 + r_y**2 + r_z**2)
+        s_abs = sqrt(s_x**2 + s_y**2 + s_z**2)
+        t_abs = sqrt(t_x**2 + t_y**2 + t_z**2)
+        p_abs = sqrt(r_x**2 + r_y**2)
+    except:
+        print(r_x, r_y, r_z)
+        return 0
     
     l_z = acos((-r_x*s_x - r_y*s_y) / (p_abs * s_abs))
     b_z = acos((r_x*t_x + r_y*t_y + r_z*t_z) / (r_abs * t_abs))
