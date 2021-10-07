@@ -72,7 +72,11 @@ def theta_solve(e, M, error=1.0E-14):
             print("Doesn't converge :(")
             print(e, M)
             return M
-    return part + acos((cos(E) - e)/(1-e*cos(E)))*sign
+    try:
+        return part + acos((cos(E) - e)/(1-e*cos(E)))*sign
+    except:
+        print(f"Error in theta solve: {E}, {e}")
+        return 0
 
 def theta_step(a, theta_old, days=1):    
     mu_sun = 1.327124E11 / (150_000_000**3) * (86_400**2)   # AU^3 / day^2

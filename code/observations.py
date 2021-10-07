@@ -141,17 +141,17 @@ def observation(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z, mode, verbose=False)
         s_abs = sqrt(s_x**2 + s_y**2 + s_z**2)
         t_abs = sqrt(t_x**2 + t_y**2 + t_z**2)
         p_abs = sqrt(r_x**2 + r_y**2)
+    
+        l_z = acos((-r_x*s_x - r_y*s_y) / (p_abs * s_abs))
+        b_z = acos((r_x*t_x + r_y*t_y + r_z*t_z) / (r_abs * t_abs))
+        l_e = (l_z + pi)%(2*pi)
+        b_e = b_z
+        l_g, b_g = ecliptic_to_galactic(l_e, b_e)
+        l_z = l_z * 180 / pi
+        b_z = b_z * 180 / pi
     except:
         print(r_x, r_y, r_z)
         return 0
-    
-    l_z = acos((-r_x*s_x - r_y*s_y) / (p_abs * s_abs))
-    b_z = acos((r_x*t_x + r_y*t_y + r_z*t_z) / (r_abs * t_abs))
-    l_e = (l_z + pi)%(2*pi)
-    b_e = b_z
-    l_g, b_g = ecliptic_to_galactic(l_e, b_e)
-    l_z = l_z * 180 / pi
-    b_z = b_z * 180 / pi
     
     if mode == "VIS":
         signalBG = (sun_scale(s_abs) * vis_zodiac(l_z, b_z) +\
@@ -188,7 +188,7 @@ def observation(t_mag, t_alb, t_x, t_y, t_z, s_x, s_y, s_z, mode, verbose=False)
 
 
 def detection(SNR):
-    return 1 if SNR > 3 else 0
+    return 1 if SNR > 5 else 0
 
 
 def detection_prob(SNR, binary=True):
